@@ -184,6 +184,6 @@ fabric.properties
 # idea folder, uncomment if you don't need it
 # .idea
 
-/Bc/chromedriver-linux64
-/Bc/libs.txt
-/Bc/temp_paper.pdf
+chromedriver-linux64
+libs.txt
+tmp/temp_paper.pdf
