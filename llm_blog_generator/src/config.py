@@ -2,9 +2,12 @@ from pathlib import Path
 
 random_seed = 999
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path().resolve().parent
 
-DATASET_PATH = BASE_DIR / "data" / "datasets" / "data.csv"
+BLOG_DATASET_PATH = BASE_DIR / "data" / "datasets" / "blogs.csv"
+PREPROCESSED_BLOG_DATASET_PATH = BASE_DIR / "data" / "datasets" / "preprocessed_blogs.csv"
+PAPER_DATASET_PATH = BASE_DIR / "data" / "datasets" / "papers.csv"
+PREPROCESSED_PAPER_DATASET_PATH = BASE_DIR / "data" / "datasets" / "preprocessed_papers.csv"
 CHROMEDRIVER_PATH = BASE_DIR / "chromedriver-linux64/chromedriver"
 EXAMPLES_PATH = BASE_DIR / "examples"
 
@@ -21,3 +24,6 @@ CLASSIFICATION_MAP = {
     "Average": 2,
     "Bad": 1
 }
+
+CHARACTERS_PER_PAGE = 2700
+MIN_PAGE_NUMBER = 20
