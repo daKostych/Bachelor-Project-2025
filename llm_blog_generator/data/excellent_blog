@@ -1,0 +1,33 @@
+# Towards Reasoning
+Glorified next token prediction has shown tremendous promise for AI in recent years, with several feats of complex reasoning especially in mathematics and coding.
+But what if that weren’t true logical reasoning? What if these large language models were not really reasoning but doing sophisticated pattern matching (after having trained on the entire internet and on curated question answers from thousands of humans <cough>RLHF</cough>)
+And the obvious second order question — what if pattern matching was a sufficient substitute to human reasoning? I mean do we really need to invent human reasoning if hyper-scaling models with memorization and pattern matching can do the job robustly?
+A recent paper from researchers at Apple seemed to have made significant progress in answering the above questions by doing one of the more boring and arduous tasks — building benchmark datasets that may be free from distribution shift and data leakage and thinking through failure test cases for reasoning.
+
+# Mathematical reasoning by LLMs is fragile at best
+I won’t review the entire paper here.
+This is a highly readable and straightforward paper — no math, no LLM or ML pre-reqs needed beyond just the basics (a curious reader without the basic knowledge can also follow through):
+
+## GSM-Symbolic: Understanding the Limitations of Mathematical Reasoning in Large Language Models
+
+### Recent advancements in Large Language Models (LLMs) have sparked interest in their formal reasoning capabilities…
+arxiv.org
+That said, some interesting hypothesis and conclusions that really stood out to me:
+1. Given LLMs get trained on all of internet + thousands of hours of human curation (RLHF), may be existing benchmark data gets leaked into model training more often. In fact GSMK8K (a popular benchmark dataset to test math reasoning) was used 3 years back to test GPT-3. It won’t be a surprise if some of these questions unintentionally leaked into the descendant model versions (open source or otherwise)
+2. New data with just small changes (such as “names” and “numerical values”) from the original GSM-8K dataset resulted in significant performance drop across all current generation of LLMs. In the words of the authors, “Would a grade-school student’s math test score vary by ~10% if we only changed the names in the math word problems?”
+3. Increasing complexity of the questions by just one additional inference step introduced significant variability in LLM predictions — indicating the fragility of current LLM reasoning.
+4. LLMs were unable to identify and ignore irrelevant information present in the word problems, indicating a lack of understanding of the mathematical concepts.
+One may be tempted to say we humans also commit the same mistakes. But this is a defensive argument which will neither advance the field, nor is it an apt comparison. We don’t usually spend a billion dollars training a single human baby to solve math word problems.
+
+# My personal reflections
+In the last 48 hours since the release of this paper, reactions in twitter have ranged from the pessimistic “valuation of companies in this field will come crashing down soon” all the way to the hyper-nihilistic “reasoning is an illusion and humans don’t reason either”!
+But may be it’s about time we step back and ask ourselves is there a more reasonable middle path here? Rather than hyper-reacting at the facts, can we also learn something about the scientific method and attitude these researchers took to arrive at their conclusions?
+In a world of AI hyper-optimists, doomers and pessimists, these authors stepped back and went to the very basics of ML model development. They asked questions that any responsible ML practitioner should ask:
+1. Can there be data leakage? — Could the data from some of the popular reasoning benchmark datasets have leaked into the model training for these hyperscaled LLMs? Highly likely!
+2. How would the models behave in the face of distribution shifts? — By simply creating variations of existing benchmark datasets, the researchers were able to conclude that current LLMs may not be as robust as we thought.
+3. Can we prioritize the hard and grunt work over the fancy? — Yes, creating benchmark datasets, or thinking of failure test cases don’t sound fancy in the world of Chain-of-thought prompting and agentic architectures. But the authors still did it.
+So maybe we too can step back and take a more reasonable approach towards grokking the findings of this paper. Here’s my best attempt at the same:
+1. No reproducibility yet: At the time of writing this article (10/12/2024), I am yet to see the benchmark dataset and any associated code. So, while the experimental set ups appear sound, I cannot reproduce the results for myself yet.
+2. Didn’t test Chain-of-thought decoding: The authors evaluated Chain-of-Thought (CoT) prompting with 8-shots with greedy decoding. However, alternate decoding paths have started to show more promise at extracting inherent reasoning from LLMs. https://arxiv.org/abs/2402.10200
+3. Humans do reason: Assuming the findings of the paper are accurate, I don’t buy the nihilistic argument that humans don’t reason either and that reasoning is an illusion. Try to solve an unseen brain teaser for a change (like really try)
+4. Transformers are useful: Say what you want — I am using copilot everyday and it’s useful in it’s current state. When it comes to reasoning, I will carry my weight. I only want my AI assistant to be useful.

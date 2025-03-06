@@ -1,0 +1,92 @@
+# What is the System 2 LLM or AI Chatbot?
+Recently, OpenAI launched OpenAI o1-preview and OpenAI o1-mini which could be considered the first successful commercial launch of a System 2 LLM. The concept of System 1 and System 2 types of human’s thinking was proposed by Daniel Kahneman in 2011 in his book Thinking, Fast and Slow. To describe the concept in a sentence, “System 1 thinking is an immediate response from your intuition while System 2 thinking is a delayed response from a well-thought-out process”.
+Many of us have been using System 1-type AI models since November 2022 when OpenAI launched ChatGPT. System 1 models generate responses directly from a given prompt. System 2-type models utilize a more deliberate and analytical process breaking down complex tasks into smaller steps. This ability is not exactly “true human-like reasoning”. Yet, it can emulate human-like reasoning that couldn’t be done so far. Therefore, OpenAI o1 probably deserves the title of the first “reasoning” AI model despite some exaggerated claims.
+OpenAI’s documents mention that their new models are using reasoning tokens as a part of the Chain of Thought (CoT) approach. CoT will now become a buzzword for a while. They also mention Reinforcement Learning is being implemented for the so-called “reasoning/thinking process”.
+It is not very clear what specific techniques they are using. One can only speculate what might be going on under the surface. However, it is possible to envision how one can design a System 2 LLM based on recent publications below.
+Chain of Thought (https://arxiv.org/abs/2201.11903, 2022)
+Tree of Thoughts (https://arxiv.org/abs/2305.10601, 2023)
+Branch-Solve-Merge (https://arxiv.org/abs/2310.15123, 2023),
+System 2 Attention (https://arxiv.org/abs/2311.11829, 2023)
+Rephrase and Respond (https://arxiv.org/abs/2311.04205, 2023)
+What these new techniques for System 2 LLMs are doing is planning a reasoning process and assessing different scenarios to solve a problem instead of responding directly to the prompt.
+System 2 models, that can also be referred as “CoT-enabled LLMs”, would excel at never-seen-before tasks that require a heavy dose of reasoning. These models can use “reasoning tokens” to help plan startegies and generate temporary outputs normally not shown to the user. OpenAI decided to provide a glimpse into their System 2 process (which they call thinking) with friendly human languages, such as “First”, “Next”, “Let’s test this theory”, “Interesting”, “Wait”, “Hmm”, “That seems unlikely”, “Alternatively”, “So this works”, “Perfect”, etc.
+Some of these English words are reasoning tokens represented as human languages for convenience. In the real application, they use system tokens which are a concept for the computer to distinguish them from regular human language tokens.
+
+# What is the Reasoning Token?
+Reasoning tokens are specialized system tokens designed to guide the system to perform step-by-step reasoning. They are created based on the user’s prompt and added to the reasoning process.
+There are different types of reasoning tokens for different purposes. Some studies proposed Self-Reasoning Tokens while some studies proposed Planning Tokens. Reasoning tokens in the systems are often notated with single or double-angle brackets for illustrative purposes like below:
+The above planning tokens at the start of each reasoning step serve as a guide to the model’s reasoning process. There are other types of system tokens that may serve as conceptual steps of the reasoning process, which may look like <Analyze_Problem>, <Generate_Hypothesis>, <Evaluate_Evidence>, and <Draw_Conclusion>. The system can also create custom reasoning tokens tailored to the specific prompt or task. This allows the system to focus on the most relevant aspects of the problem.
+These system tokens will be deleted before the final response is shown to the user. However, these system tokens still get metered, even if you can’t verify the number of usages, and are included in the bill.
+
+# Other Techniques
+
+## Decision Gate
+When the process reaches a certain level of satisfaction (utilizing the Decision Gate that determines whether sufficient reasoning has occurred), the system will remove all the technical elements and intermediate outputs to present a refined response at the end.
+
+## Reinforcement Learning
+Apart from reasoning tokens, OpenAI mentions Reinforcement Learning (RL) being used for the thinking process. Just like playing chess or evaluating options for a task, there are millions of scenarios and hypotheses that the thinking process can come up with. RL can help the system focus on the most promising paths, rather than exploring all possible scenarios. RL can also allow the system to learn from its mistakes and improve its performance over time. One of RL’s strengths is solving tasks that involve uncertainty, partial observability, and long-term planning. This kind of ability can be also useful in the “reasoning” process of System 2 models.
+According to OpenAI’s publication in May 2023 called “Let’s verify Step by Step”, they reported using a Process Supervision Model with Human Feedback significantly improved performance in math. The Process Supervision Model grades or evaluates each step of the thinking process rather than grading the final outcome as is the case of the Outcome Supervision Model. These two grading models are different types of Reinforcement Learning. It’s possible that OpenAI might have implemented approaches mentioned in the publication in their o1 models. In other words, human feedback was likely used to teach the system how to develop each step in a Chain of Thought.
+
+# System 2 Attention
+If you are a System 2 LLM developer, you might also want to use System 2 Attention where the system pays more attention to important steps of the reasoning process and adjusts the weight given to different reasoning paths. This is similar to Attention Mechanism for traditional System 1 LLMs where the system pays attention to important tokens.
+
+# Examples of Reasoning Tokens
+For convenience, I have asked Perplexity AI to give me an example of reasoning tokens. OpenAI’s models seem to be restricted to answering questions regarding reasoning tokens.
+Here is an example of reasoning tokens that could be used for complex tasks like deciphering corrupted texts:
+    * <analyze_script>: This token could prompt the model to analyze the script and writing system used in the corrupted text, identifying any unusual characters or variations.
+    * <historical_context>: This token could trigger the model to consider the historical context and time period of the text to inform the deciphering process.
+    * <identify_patterns>: This token could direct the model to look for recurring patterns or structures in the corrupted text that may provide clues.
+    * <compare_known_texts>: This token could instruct the model to compare the corrupted text to known intact texts from the same period or genre.
+    * <linguistic_analysis>: This token could prompt the model to perform a linguistic analysis of the text, considering grammar, syntax, and vocabulary.
+    * <reconstruct_missing>: This token could direct the model to attempt to reconstruct missing or illegible portions based on context and linguistic knowledge.
+    * <cross_reference>: This token could trigger the model to cross-reference the text with other historical or linguistic sources for additional insights.
+    * <evaluate_hypotheses>: This token could prompt the model to generate and evaluate multiple hypotheses about the text’s meaning or content.
+    * <cultural_context>: This token could direct the model to consider relevant cultural context that may inform the text’s interpretation.
+    * <error_analysis>: This token could instruct the model to analyze potential errors or corruptions in the text and propose corrections.
+These reasoning tokens could help guide the model through a structured, step-by-step approach to deciphering complex corrupted texts.
+Here’s another example of reasoning tokens for a complex situation created by Gemini.
+Prompt: I have a wifi AP that can reach 100 m without obstructions. How would you install wifi access points in a stadium with a shape like the attached image (contains walls, roofs, etc.) where there are no people at the time of installation but needs to simulate a full house?
+Reasoning token example:
+Understanding the Problem
+    * <Analyze_Environment>: Understand the physical layout of the stadium (size, shape, obstacles, etc.).
+    * <Identify_Coverage_Needs>: Determine the specific areas within the stadium that need Wi-Fi coverage (e.g., seating areas, concessions, bathrooms).
+    * <Assess_Interference>: Consider potential interference sources within the stadium (e.g., metal structures, concrete walls, electrical equipment).
+Planning the Installation
+    * <Determine_AP_Locations>: Identify optimal locations for Wi-Fi access points based on the stadium’s layout and coverage needs.
+    * <Consider_Mounting_Options>: Evaluate different mounting options for the APs (e.g., walls, ceilings, poles).
+    * <Plan_Wiring>: Outline the necessary wiring infrastructure to connect the APs to the network.
+Simulating a Full House
+    * <Generate_Traffic_Patterns>: Create a hypothetical traffic pattern that simulates a full stadium (e.g., concentration of devices in certain areas, varying connection strengths).
+    * <Use_Traffic_Generation_Tools>: Employ tools or software to generate simulated network traffic that mimics a full stadium crowd.
+    * <Monitor_Performance>: Observe the network’s performance under simulated conditions to identify any bottlenecks or areas for improvement.
+Drawing Conclusions
+    * <Evaluate_Installation_Success>: Assess whether the installed APs provide adequate coverage and performance under simulated full-house conditions.
+    * <Identify_Areas_for_Improvement>: Determine if any adjustments or additional APs are needed to optimize coverage and performance.
+    * <Provide_Recommendations>: Offer recommendations for future network maintenance or upgrades based on the simulation results.
+For a human expert, this task may take more than a month and still would have to go through verifications and modifications. If System 2 AI can do this almost perfectly in a week, this would change the science and engineering world significantly. However, if all CoT steps for all different use cases in the world have to be graded or taught by humans, we may not see a nearly perfect performance of AI for this kind of complex task for a long time.
+Like, subscribe, or share if you like to support content like this!
+References:
+Guiding Language Model Reasoning with Planning Tokens
+Large language models (LLMs) have recently attracted considerable interest for their ability to perform complex…
+arxiv.org
+Distilling System 2 into System 1
+Large language models (LLMs) can spend extra compute during inference to generate intermediate thoughts, which helps to…
+arxiv.org
+Chain-of-Thought Prompting Elicits Reasoning in Large Language Models
+We explore how generating a chain of thought — a series of intermediate reasoning steps — significantly improves the…
+arxiv.org
+Tree of Thoughts: Deliberate Problem Solving with Large Language Models
+Language models are increasingly being deployed for general problem solving across a wide range of tasks, but are still…
+arxiv.org
+Branch-Solve-Merge Improves Large Language Model Evaluation and Generation
+Large Language Models (LLMs) are frequently used for multi-faceted language generation and evaluation tasks that…
+arxiv.org
+System 2 Attention (is something you might need too)
+Soft attention in Transformer-based Large Language Models (LLMs) is susceptible to incorporating irrelevant information…
+arxiv.org
+Rephrase and Respond: Let Large Language Models Ask Better Questions for Themselves
+Misunderstandings arise not only in interpersonal communication but also between humans and Large Language Models…
+arxiv.org
+Let’s Verify Step by Step
+In recent years, large language models have greatly improved in their ability to perform complex multi-step reasoning…
+arxiv.org
