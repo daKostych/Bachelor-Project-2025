@@ -1,16 +1,16 @@
 from src.models_setup import gemini_2_flash, BlogClassification
 from src.text_extraction import *
 from src.prompts import prompt_five_shots
-from src.config import CLASSIFICATION_MAP
+from src.config import CLASSIFICATION_MAP, EXAMPLES_PATH
 
 def get_examples():
     """"""
     example_files = {
-        "excellent_blog": "../data/excellent_blog",
-        "very_good_blog": "../data/very_good_blog",
-        "good_blog": "../data/good_blog",
-        "average_blog": "../data/average_blog",
-        "bad_blog": "../data/bad_blog"
+        "excellent_blog": f"{EXAMPLES_PATH}/excellent_blog",
+        "very_good_blog": f"{EXAMPLES_PATH}/very_good_blog",
+        "good_blog": f"{EXAMPLES_PATH}/good_blog",
+        "average_blog": f"{EXAMPLES_PATH}/average_blog",
+        "bad_blog": f"{EXAMPLES_PATH}/bad_blog"
     }
     examples = {}
     for key, blog_path in example_files.items():

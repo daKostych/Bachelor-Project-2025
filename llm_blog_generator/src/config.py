@@ -4,8 +4,9 @@ random_seed = 999
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATASET_PATH = BASE_DIR / "data" / "data.csv"
+DATASET_PATH = BASE_DIR / "data" / "datasets" / "data.csv"
 CHROMEDRIVER_PATH = BASE_DIR / "chromedriver-linux64/chromedriver"
+EXAMPLES_PATH = BASE_DIR / "examples"
 
 GEMINI_2_FLASH = "gemini-2.0-flash"
 GEMINI_2_FLASH_TEMPERATURE = 1
