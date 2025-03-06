@@ -15,8 +15,8 @@ def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
                         f"Blog ID: {blog.id}\n"
                         f"Blog title: {blog.title_blog}\n"
                         f"Referenced paper title: {blog.title_paper}\n"
-                        f"LLM Assessment: {llm_response.overall_assessment}\n")
-                    return llm_response.overall_assessment
+                        f"LLM Assessment: {llm_response["parsed"].overall_assessment}\n")
+                    return llm_response["parsed"].overall_assessment
                 else:
                     print(f"Warning: Received invalid response on attempt {attempt + 1}.\n Retrying...")
 
