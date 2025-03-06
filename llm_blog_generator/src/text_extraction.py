@@ -65,7 +65,7 @@ def extract_paper_text(pdf_url):
     """Download PDF and extract text"""
     try:
         response = requests.get(pdf_url)
-        pdf_path = "tmp/temp_paper.pdf"
+        pdf_path = "../tmp/temp_paper.pdf"
 
         # Save PDF
         with open(pdf_path, "wb") as f:
