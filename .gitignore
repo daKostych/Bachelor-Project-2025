@@ -187,3 +187,17 @@ fabric.properties
 chromedriver-linux64
 libs.txt
 tmp/temp_paper.pdf
+/llm_blog_generator/.idea/.gitignore
+/.idea/bachalor-project.iml
+/llm_blog_generator/.idea/Bc.iml
+/llm_blog_generator/.idea/jupyter-settings.xml
+/llm_blog_generator/tmp/temp_paper.pdf
+/.idea/misc.xml
+/llm_blog_generator/.idea/misc.xml
+/.idea/modules.xml
+/llm_blog_generator/.idea/modules.xml
+/.idea/prettier.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/llm_blog_generator/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
+/llm_blog_generator/.idea/vcs.xml
