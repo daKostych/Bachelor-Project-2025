@@ -16,17 +16,17 @@ from src.config import GEMINI_2_FLASH, GEMINI_2_FLASH_TEMPERATURE, RATE_LIMIT_RP
 class BlogClassification(BaseModel):
     """Comprehensive blog classification"""
     blog_title: str = Field(..., description="Blog title")
+    assessment_explanation: str = Field(..., description="Explanation of the assessment")
     overall_assessment: Literal["Excellent", "Very Good", "Good", "Average", "Bad"] = (
         Field(..., description="Overall assessment of the blog"))
-    assessment_explanation: str = Field(..., description="Explanation of the assessment")
     improvements: List[str] = Field(..., description="Suggested improvements for the blog")
 #=======================================================================================================================
 class BlogEvaluation(BaseModel):
     """Comprehensive blog assessment on a scale from 1 to 100"""
     blog_title: str = Field(..., description="Blog title")
+    assessment_explanation: str = Field(..., description="Explanation of the assessment")
     overall_assessment: float = (
         Field(..., description="Overall assessment of the blog on a scale from 1.0 to 100.0"))
-    assessment_explanation: str = Field(..., description="Explanation of the assessment")
     improvements: List[str] = Field(..., description="Suggested improvements for the blog")
 #=======================================================================================================================
 # API request limit
