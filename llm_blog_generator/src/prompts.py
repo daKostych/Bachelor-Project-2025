@@ -299,8 +299,14 @@ prompt_meta = PromptTemplate(
     input_variables=["blog_text"],
     template=
 """You are a very strict expert in evaluating written content, specializing in assessing how well blogs communicate scientific research to a broader audience. Integrate step-by-step reasoning to evaluate engagement level of the blog below under the following structure.
+
+Clarifications:
+    - Focus only on the textual content of the blog, disregarding any visual or interactive elements. This means that there is no need to add points related to the addition of illustrations or interactive elements to possible improvements.
+    - Calmly lower your blog assessment according to the number of bugs.
+    - Return ONLY a valid JSON object in plain text.
+
 {{
-    "Referenced blog to evaluate": "{blog_text}",
+    "Referenced blog to evaluate": "[Blog title]",
     "Step 1": "Analyze the readability of the blog. Is the text easy to understand? Are the sentences clear and well-structured?",
     "Step 2": "Evaluate the structure of the blog. Does it follow a logical flow? Are the sections well-organized?",
     "Step 3": "Consider the informativeness. Does the blog provide valuable, well-researched information?",
@@ -310,8 +316,13 @@ prompt_meta = PromptTemplate(
     "Step 7": "Consider the potential for discussion. Does the blog invite the reader to engage in further thought or discussion?",
     "Step 8": "After completing the analysis for each criterion, summarize the overall engagement level using one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad".",
     "Step 9": "Write down possible improvements to the blog based on your analysis.",
-    "Overall engagement level": "[Final assessment of the blog]",
+    "Overall engagement level": "[Final assessment of the blog as one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad"]",
     "Possible improvements": "[List of possible improvements]"
-}}"""
+}}
+
+Now evaluate the provided blog.
+
+Referenced Blog to Evaluate:
+\"\"\"{blog_text}\"\"\""""
 )
 #=======================================================================================================================
