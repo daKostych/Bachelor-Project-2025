@@ -1,4 +1,5 @@
 from src.text_extraction import extract_blog_text
+from src.config import EXAMPLES_PATH
 #=======================================================================================================================
 def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     """Extract model assessment of the blog from formated output"""
@@ -29,3 +30,21 @@ def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     llm_assessment = df.apply(process_blog, axis=1)
     return llm_assessment
 #=======================================================================================================================
+def get_examples():
+    """"""
+    example_files = {
+        "excellent_blog": f"{EXAMPLES_PATH}/excellent_blog",
+        "very_good_blog": f"{EXAMPLES_PATH}/very_good_blog",
+        "good_blog": f"{EXAMPLES_PATH}/good_blog",
+        "average_blog": f"{EXAMPLES_PATH}/average_blog",
+        "bad_blog": f"{EXAMPLES_PATH}/bad_blog"
+    }
+    examples = {}
+    for key, blog_path in example_files.items():
+        try:
+            with open(blog_path, "r", encoding="utf-8") as file:
+                examples[key] = file.read()
+        except FileNotFoundError:
+            print(f"Error: File {blog_path} not found.")
+            examples[key] = ""
+    return examples
