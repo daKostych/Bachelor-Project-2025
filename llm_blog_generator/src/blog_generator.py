@@ -1,54 +1,33 @@
 from src.models_setup import gemini_2_flash, BlogClassification
 from src.text_extraction import *
 from src.prompts import prompt_five_shots
-from src.config import CLASSIFICATION_MAP, EXAMPLES_PATH
-
-def get_examples():
-    """"""
-    example_files = {
-        "excellent_blog": f"{EXAMPLES_PATH}/excellent_blog",
-        "very_good_blog": f"{EXAMPLES_PATH}/very_good_blog",
-        "good_blog": f"{EXAMPLES_PATH}/good_blog",
-        "average_blog": f"{EXAMPLES_PATH}/average_blog",
-        "bad_blog": f"{EXAMPLES_PATH}/bad_blog"
-    }
-    examples = {}
-    for key, blog_path in example_files.items():
-        try:
-            with open(blog_path, "r", encoding="utf-8") as file:
-                examples[key] = file.read()
-        except FileNotFoundError:
-            print(f"Error: File {blog_path} not found.")
-            examples[key] = ""
-    return examples
-
-class RateLimiter:
-    """Rate limits: 15 RPM, 10^6 TPM, 1 500 RPD"""
-    def __init__(self,):
-        self.__token_usage = 0
-
-    def wait(self):
-        """"""
-        pass
-
-    def update(self, usage_metadata):
-        """"""
-        pass
+from src.config import CLASSIFICATION_MAP
+from src.helpers import get_examples
 
 class BlogGenerator:
     """Generate engagement blog from scientific paper"""
     def __init__(self,
-                 generator=gemini_2_flash, evaluator=gemini_2_flash,
+                 evaluator=gemini_2_flash, generator=None,
                  min_engagement_level="Good", max_retries=3, max_retries_call=3):
-        #self.__generator = None
-        #self.__generator_init_prompt = None
-        self.__generator_retry_prompt = None
+        self.__generator = None
+        if not generator:
+            self.__generator = evaluator
+        else:
+            self.__generator = generator
         self.__evaluator = evaluator.with_structured_output(BlogClassification, include_raw=True)
+
+        self.__generator_init_prompt = None
+        self.__generator_retry_prompt = None
         self.__evaluator_prompt = prompt_five_shots
+
         self.__min_engagement_level = min_engagement_level
         self.__max_retries = max_retries
         self.__max_retries_call = max_retries_call
-        self.__rate_limiter = RateLimiter()
+
+        self.__start_time = None
+        self.__token_usage = None
+        self.__request_cnt = None
+        self.__total_request_cnt = None
 
     def refine_prompt(self, engagement_level, possible_improvements):
         """"""
@@ -95,7 +74,6 @@ class BlogGenerator:
                     print(f"{e}\nError: Failed to get valid response after {attempt + 1} attempts.\nRetrying...")
 
             usage_metadata = evaluator_response["raw"].usage_metadata
-            self.__rate_limiter.update(usage_metadata)
 
             content = evaluator_response["parsed"]
             engagement_level = content.overall_assessment
