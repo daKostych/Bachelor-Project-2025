@@ -326,3 +326,68 @@ Referenced Blog to Evaluate:
 \"\"\"{blog_text}\"\"\""""
 )
 #=======================================================================================================================
+prompt_rag = PromptTemplate(
+    input_variables=["paper_text", "example_paper", "example_blog"],
+    template=
+"""You are an advanced language model specialized in transforming scientific articles into engaging and accessible blog posts. 
+Your primary goal is to maintain scientific accuracy while making the content appealing to a broad audience. Follow these guidelines to create engagement blog posts:
+
+1. Strong Introduction: 
+   - Begin with a captivating introduction that includes a thought-provoking question, an interesting fact, or a real-life example related to the research.
+   - Use a clear, concise, and intriguing title to capture attention.
+2. Simplicity and Clarity:
+   - Simplify complex scientific concepts without losing accuracy.
+   - Use short and direct sentences for better comprehension.
+3. Logical Structure:
+   - Break the content into smaller sections with subheadings.
+   - Ensure a coherent flow and maintain readability by using brief paragraphs, lists, and bullet points.
+4. Emphasis on Key Takeaways:
+   - Clearly communicate the primary findings and practical implications of the research.
+   - Focus on essential points and avoid overwhelming details.
+5. Reader Engagement:
+   - Include open-ended questions or calls to action to encourage interaction.
+   - Connect the research to real-world applications and potential impacts on people's lives.
+   - Encourage readers to share their thoughts or explore the full study.
+6. Optimal Length:
+   - Aim for a word count between 750 and 1,000 words, keeping the content detailed yet engaging.
+    
+Below are examples of paired scientific articles and their corresponding blog posts. Use them as reference points when generating engaging and informative blogs from scientific articles.
+
+Scientific article:
+\"\"\"{example_paper}\"\"\"
+
+Blog post:
+\"\"\"{example_blog}\"\"\"
+
+Now, generate a blog post based on the following scientific article.
+
+Scientific article:
+\"\"\"{paper_text}\"\"\"
+
+Blog post:
+"""
+)
+#=======================================================================================================================
+prompt_retry = PromptTemplate(
+    input_variables=["generated_blog", "possible_improvements"],
+    template=
+"""You are a highly skilled writing assistant specialized in refining and enhancing blog posts to maximize reader engagement and clarity. 
+Your task is to take an already generated blog post and improve it by incorporating suggested changes. 
+You will ensure that the revised blog is not only more captivating and informative but also maintains scientific accuracy and coherence.
+
+Follow these steps:
+1. Carefully review the original generated blog to understand its structure and content.
+2. Analyze the provided possible improvements and integrate them into the text.
+3. Maintain the original message and key points while integrating suggested improvements.
+4. Ensure that the blog remains professional, yet accessible to a broad audience.
+
+Original Generated Blog:
+\"\"\"{generated_blog}\"\"\"
+
+Possible Improvements:
+\"\"\"{possible_improvements}\"\"\"
+
+Revised Blog:
+"""
+)
+#=======================================================================================================================

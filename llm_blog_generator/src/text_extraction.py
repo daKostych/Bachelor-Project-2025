@@ -7,8 +7,16 @@ import time
 import requests
 import fitz
 #=======================================================================================================================
-def extract_blog_text(blog):
+def extract_blog_text(blog=None, url_blog=None, author_blog=None, claps=None, comments=None):
     """Extracts only the blog text with titles and subtitles from Medium"""
+
+    if blog:
+        url_blog = blog.url_blog
+        author_blog = blog.author_blog
+        claps = blog.claps
+        comments = blog.comments
+    elif url_blog is None or author_blog is None or claps is None or comments is None:
+        return None
 
     # Set Chrome options
     chrome_options = Options()
@@ -26,14 +34,14 @@ def extract_blog_text(blog):
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
-        driver.get(blog.url_blog)
+        driver.get(url_blog)
         time.sleep(5)  # Wait for page to load
 
         # Extract the main article element
         article = driver.find_element(By.TAG_NAME, "article")
         article_elements = article.find_elements(By.XPATH, ".//h1 | .//h2 | .//h3 | .//p | .//li")
 
-        skip_phrases = ["follow", f"{blog.author_blog.lower()}", f"{int(blog.claps)}", f"{int(blog.comments)}"]
+        skip_phrases = ["follow", f"{author_blog.lower()}", f"{int(claps)}", f"{int(comments)}"]
 
         # Build a clean, structured text
         full_text = ""

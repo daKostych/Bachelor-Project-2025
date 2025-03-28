@@ -9,7 +9,7 @@ PREPROCESSED_BLOG_DATASET_PATH = BASE_DIR / "data" / "datasets" / "preprocessed_
 PAPER_DATASET_PATH = BASE_DIR / "data" / "datasets" / "papers.csv"
 PREPROCESSED_PAPER_DATASET_PATH = BASE_DIR / "data" / "datasets" / "preprocessed_papers.csv"
 CHROMEDRIVER_PATH = BASE_DIR / "chromedriver-linux64/chromedriver"
-EXAMPLES_PATH = BASE_DIR / "examples"
+EXAMPLES_PATH = BASE_DIR / "data" / "examples"
 
 GEMINI_2_FLASH = "gemini-2.0-flash"
 GEMINI_2_FLASH_TEMPERATURE = 1
