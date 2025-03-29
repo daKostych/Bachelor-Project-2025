@@ -1,5 +1,10 @@
-from src.text_extraction import extract_blog_text
-from src.config import EXAMPLES_PATH
+import os
+import logging
+import pandas as pd
+from langchain.vectorstores import FAISS
+from src.text_extraction import *
+from src.config import EXAMPLES_PATH, VECTOR_STORE_PATH, PREPROCESSED_BLOG_DATASET_PATH
+from src.models_setup import embedding_model, langchain_embedding_model
 #=======================================================================================================================
 def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     """Extract model assessment of the blog from formated output"""
@@ -48,3 +53,58 @@ def get_examples():
             print(f"Error: File {blog_path} not found.")
             examples[key] = ""
     return examples
+#=======================================================================================================================
+def create_vector_store(vector_store_path):
+    """Creates a new FAISS vector store from the provided data."""
+    # Data processing
+    blogs = pd.read_csv(PREPROCESSED_BLOG_DATASET_PATH)
+    valid_blogs = blogs[blogs["engagement_level"].isin(["Good", "Very Good", "Excellent"])].copy()
+    valid_blogs["full_paper"] = valid_blogs["url_paper"].apply(extract_paper_text)
+
+    elements = []
+    for text, blog_url, author, claps, comments in zip(valid_blogs["full_paper"],
+                                                       valid_blogs["url_blog"],
+                                                       valid_blogs["author_blog"],
+                                                       valid_blogs["claps"],
+                                                       valid_blogs["comments"]):
+        embedding = embedding_model.encode(text, clean_up_tokenization_spaces=True)
+        metadata = {
+            "full_text": text,
+            "blog_url": blog_url,
+            "author": author,
+            "claps": claps,
+            "comments": comments
+        }
+        elements.append((embedding, metadata))
+
+    vector_store = FAISS.from_texts(
+        texts=[element[1]["full_text"] for element in elements],
+        embedding=langchain_embedding_model,
+        metadatas=[element[1] for element in elements]
+    )
+
+    vector_store.save_local(VECTOR_STORE_PATH)
+    return vector_store
+#=======================================================================================================================
+def load_or_create_vector_store(vector_store_path=VECTOR_STORE_PATH):
+    """Loads the FAISS vector store or creates it if it doesn't exist."""
+    if os.path.exists(vector_store_path):
+        logging.info("Loading vector store...")
+        try:
+            vector_store = FAISS.load_local(vector_store_path,
+                                            embeddings=langchain_embedding_model,
+                                            allow_dangerous_deserialization=True)
+            logging.info("Vector store loaded successfully.")
+        except Exception as e:
+            logging.error(f"Error loading vector store: {e}")
+            raise
+    else:
+        logging.warning("Vector store does not exist. Creating new one...")
+        try:
+            vector_store = create_vector_store(vector_store_path)
+            logging.info("New vector store created successfully.")
+        except Exception as e:
+            logging.error(f"Error creating vector store: {e}")
+            raise
+    return vector_store
+#=======================================================================================================================
