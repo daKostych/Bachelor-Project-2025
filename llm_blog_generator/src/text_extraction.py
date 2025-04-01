@@ -1,22 +1,24 @@
+import time
+import requests
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from src.config import CHROMEDRIVER_PATH
-import time
-import requests
 import fitz
-#=======================================================================================================================
-def extract_blog_text(blog=None, url_blog=None, author_blog=None, claps=None, comments=None):
-    """Extracts only the blog text with titles and subtitles from Medium"""
+import pandas as pd
 
-    if blog:
-        url_blog = blog.url_blog
-        author_blog = blog.author_blog
-        claps = blog.claps
-        comments = blog.comments
-    elif url_blog is None or author_blog is None or claps is None or comments is None:
-        return None
+from src.config import CHROMEDRIVER_PATH
+#=======================================================================================================================
+def extract_blog_text(source="Medium", blog=None, url_blog=None, author_blog=None):
+    """Extracts only the blog text with titles and subtitles from Medium/Google DeepMind"""
+
+    if source == "Medium":
+        if isinstance(blog, pd.Series):
+            url_blog = blog.url_blog
+            author_blog = blog.author_blog
+        elif url_blog is None or author_blog is None:
+            return None
 
     # Set Chrome options
     chrome_options = Options()
@@ -32,6 +34,7 @@ def extract_blog_text(blog=None, url_blog=None, author_blog=None, claps=None, co
     # Initialize WebDriver
     service = Service(CHROMEDRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=chrome_options)
+    article_elements = None
 
     try:
         driver.get(url_blog)
@@ -39,9 +42,28 @@ def extract_blog_text(blog=None, url_blog=None, author_blog=None, claps=None, co
 
         # Extract the main article element
         article = driver.find_element(By.TAG_NAME, "article")
-        article_elements = article.find_elements(By.XPATH, ".//h1 | .//h2 | .//h3 | .//p | .//li")
+        article_elements = None
+        if source == "Medium":
+            article_elements = article.find_elements(By.XPATH, ".//h1 | .//h2 | .//h3 | .//p | .//li")
+        elif source == "DeepMind":
+            ignore_classes = ['article-cover__eyebrow glue-label', 'article-cover__authors', 'caption', 'related-posts',
+                              'glue-video__info', 'article-cover__ctas']
+            ignore_xpath = " or ".join([f"contains(@class, '{cls}')" for cls in ignore_classes])
 
-        skip_phrases = ["follow", f"{author_blog.lower()}", f"{int(claps)}", f"{int(comments)}"]
+            article_elements = article.find_elements(
+                By.XPATH,
+                f".//h1[not(ancestor::*[{ignore_xpath}])] | "
+                f".//h2[not(ancestor::*[{ignore_xpath}])] | "
+                f".//h3[not(ancestor::*[{ignore_xpath}])] | "
+                f".//p[not(ancestor::*[{ignore_xpath}])] | "
+                f".//li[not(ancestor::*[{ignore_xpath}])]"
+            )
+
+        skip_phrases = []
+        if source == "Medium":
+            skip_phrases = ["follow", f"{author_blog.lower()}"]
+        elif source == "DeepMind":
+            skip_phrases = ["research", "impact", "responsibility & safety"]
 
         # Build a clean, structured text
         full_text = ""
@@ -58,7 +80,7 @@ def extract_blog_text(blog=None, url_blog=None, author_blog=None, claps=None, co
                     full_text += f"\n### {text}\n"
                 elif tag_name == "li":
                     full_text += f"    * {text}\n"
-                elif tag_name == "p" and text.lower() not in skip_phrases:
+                elif tag_name == "p" and text.lower() not in skip_phrases and not text.isdigit():
                     full_text += f"{text}\n"
 
     except Exception as e:
