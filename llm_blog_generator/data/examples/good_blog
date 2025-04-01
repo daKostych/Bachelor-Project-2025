@@ -2,8 +2,6 @@
 
 ## Dive into how DeepSeek, ChatGPT, and other LLMs leverage reinforcement learning to enhance their training
 Data Science Collective
-228
-2
 DeepSeek has recently made quite a buzz in the AI community, thanks to its impressive performance at relatively low costs. I think this is a perfect opportunity to dive deeper into how Large Language Models (LLMs) are trained. In this article, we will focus on the Reinforcement Learning (RL) side of things: we will cover TRPO, PPO, and, more recently, GRPO (don't worry, I will explain all these terms soon!)
 I have aimed to keep this article relatively easy to read and accessible, by minimizing the math, so you won’t need a deep Reinforcement Learning background to follow along. However, I will assume that you have some familiarity with Machine Learning, Deep Learning, and a basic understanding of how LLMs work.
 I hope you enjoy the article, and feel free to leave a clap!
