@@ -1,12 +1,13 @@
 import os
 import logging
-import pandas as pd
+
 from langchain.vectorstores import FAISS
+
 from src.text_extraction import *
 from src.config import EXAMPLES_PATH, VECTOR_STORE_PATH, PREPROCESSED_BLOG_DATASET_PATH
 from src.models_setup import embedding_model, langchain_embedding_model
 #=======================================================================================================================
-def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
+def extract_llm_assessment(df, prompt_template, model, examples, max_retries=2):
     """Extract model assessment of the blog from formated output"""
     chain = prompt_template | model
 
@@ -36,7 +37,7 @@ def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     return llm_assessment
 #=======================================================================================================================
 def get_examples():
-    """"""
+    """Set examples for five-shot prompt"""
     example_files = {
         "excellent_blog": f"{EXAMPLES_PATH}/excellent_blog",
         "very_good_blog": f"{EXAMPLES_PATH}/very_good_blog",
