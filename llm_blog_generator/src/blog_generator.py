@@ -1,13 +1,14 @@
 import logging
 import datetime
 from datetime import datetime
+
 from src.helpers import get_examples, load_or_create_vector_store
 from src.models_setup import gemini_2_flash, embedding_model
 from src.text_extraction import *
 from src.prompts import prompt_five_shots, prompt_rag, prompt_retry
-from src.config import RESULTS_PATH, CLASSIFICATION_MAP, LLM_RPD, LLM_RPM, LLM_TPM
+from src.config import *
 from src.output_formats import BlogClassification, BlogGeneration
-
+#=======================================================================================================================
 class BlogGenerator:
     """Generate engagement blog from scientific paper"""
     def __init__(self,
@@ -59,19 +60,19 @@ class BlogGenerator:
         current_time = datetime.now()
 
         # Check for daily limit (RPD)
-        if self.__total_request_cnt >= LLM_RPD:
+        if self.__total_request_cnt >= GEMINI_2_FLASH_RPD:
             logging.error("Daily request limit exceeded!")
             raise Exception("Daily request limit exceeded")
 
         # Check for RPM limit (Requests per minute)
-        if self.__request_cnt >= LLM_RPM:
+        if self.__request_cnt >= GEMINI_2_FLASH_RPM:
             # Sleep until the next minute
             sleep_time = 60 - (current_time.second - self.__start_time.second) if self.__start_time else 60
             logging.info(f"RPM limit exceeded, sleeping for {sleep_time} seconds.")
             time.sleep(sleep_time)
 
         # Check for TPM limit (Tokens per minute)
-        if self.__token_usage >= LLM_TPM:
+        if self.__token_usage >= GEMINI_2_FLASH_TPM:
             # Sleep until the next minute
             sleep_time = 60 - (current_time.second - self.__start_time.second) if self.__start_time else 60
             logging.info(f"TPM limit exceeded, sleeping for {sleep_time} seconds.")
