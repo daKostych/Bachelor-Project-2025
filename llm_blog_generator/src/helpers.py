@@ -7,25 +7,25 @@ from src.text_extraction import *
 from src.config import EXAMPLES_PATH, VECTOR_STORE_PATH, PREPROCESSED_BLOG_DATASET_PATH
 from src.models_setup import embedding_model, langchain_embedding_model
 #=======================================================================================================================
-def extract_llm_assessment(df, prompt_template, model, examples, max_retries=2):
+def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     """Extract model assessment of the blog from formated output"""
     chain = prompt_template | model
 
     def process_blog(blog):
         for attempt in range(max_retries):
             try:
-                tmp = {"blog_text" : extract_blog_text(blog)}
+                tmp = {"blog_text" : blog.blog_full_text}
                 llm_response = chain.invoke({**examples, **tmp})
 
                 if llm_response:
-                    print(f"----------\n"
+                    """print(f"----------\n"
                         f"Blog ID: {blog.id}\n"
                         f"Blog title: {blog.title_blog}\n"
                         f"Referenced paper title: {blog.title_paper}\n"
-                        f"LLM Assessment: {llm_response["parsed"].overall_assessment}\n")
+                        f"LLM Assessment: {llm_response["parsed"].overall_assessment}\n")"""
                     return llm_response["parsed"].overall_assessment
-                else:
-                    print(f"Warning: Received invalid response on attempt {attempt + 1}.\n Retrying...")
+                """else:
+                    print(f"Warning: Received invalid response on attempt {attempt + 1}.\n Retrying...")"""
 
             except Exception as e:
                 print(f"Error processing blog \"{blog.title_blog}\":\n{e}\n Retrying...")
