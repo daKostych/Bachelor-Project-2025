@@ -5,7 +5,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from sentence_transformers import SentenceTransformer
 
 from src.config import (GEMINI_2_FLASH, TEMPERATURE, GEMINI_2_FLASH_RPM, GEMINI_2_FLASH_LITE, GEMINI_2_FLASH_LITE_RPM,
-                        GEMINI_2_FLASH_THINKING_EXPERIMENTAL_01_21, GEMINI_2_FLASH_THINKING_EXPERIMENTAL_01_21_RPM,
+                        GEMINI_1_5_FLASH, GEMINI_1_5_FLASH_RPM,
                         RATE_LIMIT_BUCKET, EMBEDDING_MODEL_NAME)
 #=======================================================================================================================
 def calculate_rps(rpm):
@@ -31,12 +31,12 @@ gemini_2_flash_lite = ChatGoogleGenerativeAI(
     )
 )
 #=======================================================================================================================
-# Gemini 2.0 Flash Thinking Experimental 01-21
-gemini_2_flash_thinking = ChatGoogleGenerativeAI(
-    model=GEMINI_2_FLASH_THINKING_EXPERIMENTAL_01_21,
+# Gemini 1.5 Flash
+gemini_1_5_flash = ChatGoogleGenerativeAI(
+    model=GEMINI_1_5_FLASH,
     temperature=TEMPERATURE,
     rate_limiter=InMemoryRateLimiter(
-        requests_per_second=calculate_rps(GEMINI_2_FLASH_THINKING_EXPERIMENTAL_01_21_RPM),
+        requests_per_second=calculate_rps(GEMINI_1_5_FLASH_RPM),
         max_bucket_size=RATE_LIMIT_BUCKET,
     )
 )
