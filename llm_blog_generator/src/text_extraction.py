@@ -10,7 +10,7 @@ import pandas as pd
 
 from src.config import CHROMEDRIVER_PATH
 #=======================================================================================================================
-def extract_blog_text(source="Medium", blog=None, url_blog=None, author_blog=None):
+def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=None):
     """Extracts only the blog text with titles and subtitles from Medium/Google DeepMind"""
 
     if source == "Medium":
