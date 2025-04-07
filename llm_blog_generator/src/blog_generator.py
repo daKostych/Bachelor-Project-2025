@@ -13,7 +13,8 @@ class BlogGenerator:
     """Generate engagement blog from scientific paper"""
     def __init__(self,
                  evaluator=gemini_2_flash, generator=None,
-                 min_engagement_level="Good", max_retries=3, max_retries_call=3):
+                 min_engagement_level="Good", max_retries=3, max_retries_call=3,
+                 experiment=False):
         """Initializes the BlogGenerator object with configuration for blog generation and evaluation."""
         self.__generator = None
         if not generator:
@@ -36,6 +37,8 @@ class BlogGenerator:
         self.__total_request_cnt = 0
 
         self.__vector_store = load_or_create_vector_store()
+
+        self.experiment_mode = experiment
 
         logging.info("BlogGenerator initialized with vector store.")
 
@@ -114,6 +117,8 @@ class BlogGenerator:
         best_blog, blog = None, None
         best_engagement_level, engagement_level = "Bad", None
         possible_improvements = None
+        assessment_history = []
+        best_assessment_history = []
 
         generation_chain = self.__generator_init_prompt | self.__generator
         evaluation_chain = self.__evaluator_prompt | self.__evaluator
@@ -135,9 +140,7 @@ class BlogGenerator:
                         generation_example = self.find_most_similar_article(paper_text)
                         example_paper = generation_example["full_text"]
                         example_blog = extract_blog_text(url_blog=generation_example["blog_url"],
-                                                         author_blog=generation_example["author"],
-                                                         claps=generation_example["claps"],
-                                                         comments=generation_example["comments"])
+                                                         author_blog=generation_example["author"])
                         generator_response = self.safe_invoke(generation_chain,
                                                               {
                                                                   "paper_text": paper_text,
@@ -161,6 +164,7 @@ class BlogGenerator:
                     if evaluator_response:
                         content = evaluator_response["parsed"]
                         engagement_level = content.overall_assessment
+                        assessment_history.append(CLASSIFICATION_MAP[engagement_level])
                         possible_improvements = "\n".join(
                             [f"{i+1}. {improvement}" for i, improvement in enumerate(content.improvements)]
                         )
@@ -174,17 +178,24 @@ class BlogGenerator:
                 logging.info("Saving blog.")
                 with open(f"{RESULTS_PATH}/blog", "w", encoding="utf-8") as file:
                     file.write(blog)
-                return blog
+                if not self.experiment_mode:
+                    return blog
 
             if CLASSIFICATION_MAP[engagement_level] >= CLASSIFICATION_MAP[best_engagement_level]:
                 best_engagement_level = engagement_level
                 best_blog = blog
 
-            logging.info(f"Blog generation attempt {retries + 1} unsuccessful. Retrying...")
+            best_assessment_history.append(CLASSIFICATION_MAP[best_engagement_level])
+
+            if not self.experiment_mode:
+                logging.info(f"Blog generation attempt {retries + 1} unsuccessful. Retrying...")
             retries += 1
 
         if best_blog:
             logging.info("Saving best blog.")
             with open(f"{RESULTS_PATH}/blog", "w", encoding="utf-8") as file:
                 file.write(best_blog)
-        return best_blog
+        if self.experiment_mode:
+            return assessment_history, best_assessment_history
+        else:
+            return best_blog
