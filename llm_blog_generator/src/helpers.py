@@ -55,7 +55,7 @@ def get_examples():
             examples[key] = ""
     return examples
 #=======================================================================================================================
-def create_vector_store(vector_store_path):
+def create_vector_store():
     """Creates a new FAISS vector store from the provided data."""
     # Data processing
     blogs = pd.read_csv(PREPROCESSED_BLOG_DATASET_PATH)
@@ -65,16 +65,12 @@ def create_vector_store(vector_store_path):
     elements = []
     for text, blog_url, author, claps, comments in zip(valid_blogs["full_paper"],
                                                        valid_blogs["url_blog"],
-                                                       valid_blogs["author_blog"],
-                                                       valid_blogs["claps"],
-                                                       valid_blogs["comments"]):
+                                                       valid_blogs["author_blog"]):
         embedding = embedding_model.encode(text, clean_up_tokenization_spaces=True)
         metadata = {
             "full_text": text,
             "blog_url": blog_url,
-            "author": author,
-            "claps": claps,
-            "comments": comments
+            "author": author
         }
         elements.append((embedding, metadata))
 
@@ -102,7 +98,7 @@ def load_or_create_vector_store(vector_store_path=VECTOR_STORE_PATH):
     else:
         logging.warning("Vector store does not exist. Creating new one...")
         try:
-            vector_store = create_vector_store(vector_store_path)
+            vector_store = create_vector_store()
             logging.info("New vector store created successfully.")
         except Exception as e:
             logging.error(f"Error creating vector store: {e}")
