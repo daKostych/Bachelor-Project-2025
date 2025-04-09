@@ -1,14 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Literal
 #=======================================================================================================================
-# Do not work
-"""class CriterionEvaluation(BaseModel):
-    \"""Rating a blog based on one criterion\"""
-    criterion: str = Field(..., description="Name of the criterion")
-    classification: Literal["Excellent", "Very Good", "Good", "Average", "Bad"] = (
-        Field(..., description="Categorical classification of the blog based on the given criterion"))
-    comment: str = Field(..., description="Short comment on the blog's assessment based on a given criterion")"""
-#=======================================================================================================================
 class BlogEvaluation(BaseModel):
     """Comprehensive blog assessment on a scale from 1 to 100"""
     blog_title: str = Field(..., description="Blog title")
@@ -54,6 +46,5 @@ class BlogClassificationMP(BaseModel):
 #=======================================================================================================================
 class BlogGeneration(BaseModel):
     """Generation engagement blog post form scientific paper"""
-    blog_title: str = Field(..., description="Blog title")
-    text: str = Field(..., description="The full text of the blog post")
+    text: str = Field(..., description="The full text of the blog post with blog title")
 #=======================================================================================================================
