@@ -130,7 +130,7 @@ Clarifications:
 Expected Output Format:
     - Accumulate your judgment into one overall assessment on a scale from 1 to 100.
     - Explain why you gave this assessment.
-    - Write down possible improvements to the blog.
+    - Write down a few possible improvements that will improve the engagement score, if necessary (if the overall assessment is less than 100).
         
 Reference Examples:
 Below are examples of blog evaluations, each representing a different engagement score. Use them as a reference when assessing the provided blog.
@@ -182,7 +182,7 @@ Clarifications:
 Expected Output Format:
     - Summarize the overall engagement level using one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad".
     - Explain why you gave this assessment.
-    - Write down possible improvements to the blog.
+    - Write down a few possible improvements that will improve the engagement level, if necessary (if the overall assessment is worse than "Excellent").
         
 Reference Examples:
 Below are examples of blog evaluations, each representing a different engagement level. Use them as a reference when assessing the provided blog.
@@ -256,7 +256,7 @@ Clarifications:
 Expected Output Format:
     - Step by step, explain your analysis for each of the criteria listed above. Start by evaluating readability, then move on to structure, informativeness, and so on. Make sure to detail why you gave the specific score for each criterion and provide reasoning.
     - After completing the analysis for each criterion, summarize the overall engagement level using one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad".
-    - Write down possible improvements to the blog based on your analysis.
+    - Write down a few possible improvements that will improve the engagement level, if necessary (if the overall assessment is worse than "Excellent").
 
 Now evaluate the provided blog.
 
@@ -287,7 +287,7 @@ Clarifications:
 Expected Output Format:
     - Before proceeding with the blog evaluation, generate a key analysis related to evaluating the blog based on the criteria mentioned above. Use this generated knowledge during the actual blog evaluation.
     - After completing the analysis for each criterion, summarize the overall engagement level using one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad".
-    - Write down possible improvements to the blog based on your analysis.
+    - Write down a few possible improvements that will improve the engagement level, if necessary (if the overall assessment is worse than "Excellent").
 
 Now evaluate the provided blog.
 
@@ -315,7 +315,7 @@ Clarifications:
     "Step 6": "Assess the audience appeal. Would the intended audience find the blog interesting? Is the tone appropriate for the target readers?",
     "Step 7": "Consider the potential for discussion. Does the blog invite the reader to engage in further thought or discussion?",
     "Step 8": "After completing the analysis for each criterion, summarize the overall engagement level using one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad".",
-    "Step 9": "Write down possible improvements to the blog based on your analysis.",
+    "Step 9": "Write down a few possible improvements that will improve the engagement level, if necessary (if the overall assessment is worse than "Excellent").",
     "Overall engagement level": "[Final assessment of the blog as one of the following ratings: "Excellent", "Very Good", "Good", "Average", "Bad"]",
     "Possible improvements": "[List of possible improvements]"
 }}
@@ -381,6 +381,8 @@ Follow these steps:
 3. Maintain the original message and key points while integrating suggested improvements.
 4. Ensure that the blog remains professional, yet accessible to a broad audience.
 
+Now, rewrite the original generated blog.
+
 Original Generated Blog:
 \"\"\"{generated_blog}\"\"\"
 
@@ -391,3 +393,38 @@ Revised Blog:
 """
 )
 #=======================================================================================================================
+prompt_retry_with_memory_usage = PromptTemplate(
+    input_variables=["generated_blog", "possible_improvements", "similar_blog", "similar_blog_score", "similar_blog_improvements"],
+    template=
+"""You are a highly skilled writing assistant specialized in refining and enhancing blog posts to maximize reader engagement and clarity. 
+Your task is to take an already generated blog post and improve it by incorporating suggested changes. 
+You will ensure that the revised blog is not only more captivating and informative but also maintains scientific accuracy and coherence.
+
+Follow these steps:
+1. Carefully review the original generated blog to understand its structure and content.
+2. Analyze the provided possible improvements and integrate them into the text.
+3. Maintain the original message and key points while integrating suggested improvements.
+4. Ensure that the blog remains professional, yet accessible to a broad audience.
+5. Take into consideration the memory context from the agent's previous experiences, specifically the most similar blog, its evaluation score, and the suggested improvements for it. Use this context to guide you in refining the current blog.
+
+### Memory Context:
+Most Similar Blog from Memory:
+\"\"\"{similar_blog}\"\"\"
+
+Evaluation of the Similar Blog:
+\"\"\"{similar_blog_score}\"\"\"
+
+Suggested Improvements for the Similar Blog:
+\"\"\"{similar_blog_improvements}\"\"\"
+
+Now, rewrite the original generated blog.
+
+### Original Generated Blog:
+\"\"\"{generated_blog}\"\"\"
+
+### Possible Improvements:
+\"\"\"{possible_improvements}\"\"\"
+
+### Revised Blog:
+"""
+)
