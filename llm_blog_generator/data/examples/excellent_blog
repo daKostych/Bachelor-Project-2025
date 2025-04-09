@@ -1,33 +1,118 @@
-# Towards Reasoning
-Glorified next token prediction has shown tremendous promise for AI in recent years, with several feats of complex reasoning especially in mathematics and coding.
-But what if that weren’t true logical reasoning? What if these large language models were not really reasoning but doing sophisticated pattern matching (after having trained on the entire internet and on curated question answers from thousands of humans <cough>RLHF</cough>)
-And the obvious second order question — what if pattern matching was a sufficient substitute to human reasoning? I mean do we really need to invent human reasoning if hyper-scaling models with memorization and pattern matching can do the job robustly?
-A recent paper from researchers at Apple seemed to have made significant progress in answering the above questions by doing one of the more boring and arduous tasks — building benchmark datasets that may be free from distribution shift and data leakage and thinking through failure test cases for reasoning.
+# How AI Is Changing the Way We Code
 
-# Mathematical reasoning by LLMs is fragile at best
-I won’t review the entire paper here.
-This is a highly readable and straightforward paper — no math, no LLM or ML pre-reqs needed beyond just the basics (a curious reader without the basic knowledge can also follow through):
+## Evidence from ChatGPT and Stack Overflow
 
-## GSM-Symbolic: Understanding the Limitations of Mathematical Reasoning in Large Language Models
+In short: In this article, you will find a summary of my latest research on AI and work (exploring the effect of AI on productivity while opening up the discussion on the long-term effects), an example of a quasi-experimental method (Difference-in-Difference) illustrated with ChatGPT and Stack Overflow, and see how you can extract data from Stack Overflow with a simple SQL query.
 
-### Recent advancements in Large Language Models (LLMs) have sparked interest in their formal reasoning capabilities…
-arxiv.org
-That said, some interesting hypothesis and conclusions that really stood out to me:
-1. Given LLMs get trained on all of internet + thousands of hours of human curation (RLHF), may be existing benchmark data gets leaked into model training more often. In fact GSMK8K (a popular benchmark dataset to test math reasoning) was used 3 years back to test GPT-3. It won’t be a surprise if some of these questions unintentionally leaked into the descendant model versions (open source or otherwise)
-2. New data with just small changes (such as “names” and “numerical values”) from the original GSM-8K dataset resulted in significant performance drop across all current generation of LLMs. In the words of the authors, “Would a grade-school student’s math test score vary by ~10% if we only changed the names in the math word problems?”
-3. Increasing complexity of the questions by just one additional inference step introduced significant variability in LLM predictions — indicating the fragility of current LLM reasoning.
-4. LLMs were unable to identify and ignore irrelevant information present in the word problems, indicating a lack of understanding of the mathematical concepts.
-One may be tempted to say we humans also commit the same mistakes. But this is a defensive argument which will neither advance the field, nor is it an apt comparison. We don’t usually spend a billion dollars training a single human baby to solve math word problems.
+Link to the full scientific article (please cite): https://arxiv.org/abs/2308.11302
 
-# My personal reflections
-In the last 48 hours since the release of this paper, reactions in twitter have ranged from the pessimistic “valuation of companies in this field will come crashing down soon” all the way to the hyper-nihilistic “reasoning is an illusion and humans don’t reason either”!
-But may be it’s about time we step back and ask ourselves is there a more reasonable middle path here? Rather than hyper-reacting at the facts, can we also learn something about the scientific method and attitude these researchers took to arrive at their conclusions?
-In a world of AI hyper-optimists, doomers and pessimists, these authors stepped back and went to the very basics of ML model development. They asked questions that any responsible ML practitioner should ask:
-1. Can there be data leakage? — Could the data from some of the popular reasoning benchmark datasets have leaked into the model training for these hyperscaled LLMs? Highly likely!
-2. How would the models behave in the face of distribution shifts? — By simply creating variations of existing benchmark datasets, the researchers were able to conclude that current LLMs may not be as robust as we thought.
-3. Can we prioritize the hard and grunt work over the fancy? — Yes, creating benchmark datasets, or thinking of failure test cases don’t sound fancy in the world of Chain-of-thought prompting and agentic architectures. But the authors still did it.
-So maybe we too can step back and take a more reasonable approach towards grokking the findings of this paper. Here’s my best attempt at the same:
-1. No reproducibility yet: At the time of writing this article (10/12/2024), I am yet to see the benchmark dataset and any associated code. So, while the experimental set ups appear sound, I cannot reproduce the results for myself yet.
-2. Didn’t test Chain-of-thought decoding: The authors evaluated Chain-of-Thought (CoT) prompting with 8-shots with greedy decoding. However, alternate decoding paths have started to show more promise at extracting inherent reasoning from LLMs. https://arxiv.org/abs/2402.10200
-3. Humans do reason: Assuming the findings of the paper are accurate, I don’t buy the nihilistic argument that humans don’t reason either and that reasoning is an illusion. Try to solve an unseen brain teaser for a change (like really try)
-4. Transformers are useful: Say what you want — I am using copilot everyday and it’s useful in it’s current state. When it comes to reasoning, I will carry my weight. I only want my AI assistant to be useful.
+As
+with most technological revolutions, ChatGPT’s release was accompanied by fascination and fear. On one hand in just two months, with 100 millions monthly active users, the app broke the record for the fastest-growing consumer application in history. On the other hand, a report by Goldman Sachs claimed that such technology could replace more than 300 millions jobs globally [1]. Additionally, Elon Musk alongside more than 1,000 tech leaders and researchers signed an open letter urging for a pause on the most advanced AI developments [2].
+
+``We can only see a short distance ahead, but we can see plenty that needs to be done.’’ Alan Turing
+
+In line with Alan Turing’s quote, this article does not seek to predict heroically the distant future of AI and its impacts. However, I focus on one of the main observable consequences affecting us: How AI is changing the way we code.
+
+T
+he world changed with the birth of ChatGPT. At least, as someone who codes every day, my world changed overnight. Instead of spending hours on Google to find the right solution or digging into the answers on Stack Overflow and translating the solution to my exact problem with the right variables names and matrices dimensions, I could just ask ChatGPT. The chatbot would not only give me an answer in a blink of an eye but the answer would fit my exact situation (e.g. correct names, dataframes dimensions, variable types, etc.). I was blown away, and my productivity jumped suddenly.
+
+Hence, I decided to explore the large-scale effect of ChatGPT release and its potential effect on productivity and ultimately on the way we work. I defined three hypotheses (Hs) that I tested using Stack Overflow data.
+
+H1: ChatGPT decreases the number of questions asked on Stack Overflow. If ChatGPT can solve coding problems in seconds, we can expect a fall of questions on coding community platforms where asking a question and getting an answer takes time.
+
+H2: ChatGPT increases the quality of the questions asked. If ChatGPT is used largely, the remaining questions on Stack Overflow must be better documented as ChatGPT might have already helped a bit.
+
+H3: The remaining questions are more complex. We can expect that the remaining questions are more challenging as they could potentially not be answered by ChatGPT. Hence, to test this we are testing if the proportion of unanswered questions increases. In addition, I also test if the number of views per question changes. If the number of views per question is stable it would be an additional sign that the complexity of the remaining questions is increased and that this finding is not only caused by the reduced activity on the platform.
+
+To test those hypotheses, I will exploit the sudden release of ChatGPT on Stack Overflow. In November 2022, when OpenAI released publicly their chatbot, no other alternatives were available (e.g. Google Bard), and the access was free (not limited to paid subscription as with OpenAI ChatGPT 4 or Code Interpreter). Hence it is possible to observe how the activity changed in the online coding community before and after the shock. However, despite how ‘clean’ this shock is, other effects might be confounded and hence question causality. In particular, seasonality (e.g. end of the year holidays after the release) as well as the fact that the more recent the question is, the lower the number of views and the probability that an answer is found.
+
+Ideally, to mitigate the influence of potential lingering confounding variables such as seasonality and measure a causal effect, we would like to observe the world without ChatGPT release which is impossible (e.g. the fundamental problem of causal inference). Nevertheless, I will address this challenge by exploiting the fact that the quality of the answers of ChatGPT for coding-related issues varies from one language to another and use quasi-experimental methods to limit the risk of other factors confounding the effect (Difference-in-Difference).
+
+To do so, I will compare the activity on Stack Overflow between Python and R. Python is an obvious choice as it, is arguably, one of the
+most popular programming languages used (e.g. ranked 1st in the TIOBE
+Programming Community Index). The large set of resources online for Python provides a rich training set for chatbots like ChatGPT. Now, to compare with Python, I chose R. Python is often cited as the best replacement for R and both are freely available. However, R is somewhat less popular (e.g.~16th in the TIOBE Programming Community index) and hence the training data might be smaller, implying poorer performance by ChatGPT. Anecdotal evidence confirmed this difference (more details on the method in the Method section). Hence, R represents a valid counter factual for Python (it is affected by seasonality but we can expect a negligible effect of ChatGPT).
+
+The Figure above presents the raw weekly data. We can witness the sudden and important drop (21.2%) in the number of questions asked weekly on Stack Overflow about Python after the release of ChatGPT 3.5 while the effect on R is somewhat smaller (drop of 15.8%).
+
+These ‘qualitative’ observations are confirmed by the statistical model. The econometric model described later finds a statistically significant drop of 937.7 (95% CI: [-1232.8,-642.55 ] ; p-value = 0.000) weekly questions on average for Python on Stack Overflow. The subsequent analysis, utilizing the Diff-in-Diff method, further unveils an improvement in question quality (measured on the platform by a score), alongside an increase in the proportion of questions remaining unanswered (while the average number of views per question seems unchanged). Consequently, this study provides evidence for the three hypotheses defined earlier.
+
+These findings underscore the profound role of AI in the way we work. By addressing routine inquiries, generative AI empowers individuals to channel their efforts toward more complex tasks while boosting their productivity. However, important long-term potential adverse effects are also discussed in the Discussion section.
+
+The rest of the article will present the Data and Methods, then the Results, and will close with the Discussion.
+
+# Data
+
+The data have been extracted using an SQL query on the Stack Overflow data explorer portal (licence: CC BY-SA). Here is the SQL command used:
+
+I then aggregated the data by week to reduce the noise and hence obtained a dataset from Monday the 17th of October 2022 to the 19th of March 2023 with information on the number of weekly posts, the number of views, the number of views per questions, the average score per question and the proportion of unanswered question. The score is defined by users of the platform who can vote up or down to say if the question shows “research effort; it is useful and clear” or not.
+
+# Method
+
+In order to measure a causal effect, I use a Difference-in-Difference model which is an econometric method that exploits usually a change over time and compares a treated unit(s) with an untreated group. In order to know more about this method I can recommend you to read the chapter referring to this method in two free e-books: Causal Inference Inference for the Brave and True and Causal Inference: The Mixtape.
+
+In simple terms, the Diff-in-Diff model computes a double difference in order to identify a causal effect. Here is a simplified explanation. First, the idea is to compute two simple differences: the ‘average’ difference between the pre (before ChatGPT release) and post-period for the two groups treated and untreated (here respectively Python and R questions). What we care about is the effect of the treatment on the treated units (here is the effect of ChatGPT release on Python questions). However, as said earlier, there might be another effect still confounded with the treatment (e.g. seasonality). In order to address this issue, the idea of the model is to compute a double difference, in order to check how the first difference for the treated (Python) is different from the second (difference for the control group, R). As we expect no treatment effect (or negligible) on the control group, while still affected by seasonality for example, we can get rid of this potential confounding factor and ultimately measure a causal effect.
+
+Here is a slightly more formal representation.
+
+First difference for the treated group:
+
+E[Yᵢₜ| Treatedᵢ, Postₜ]-E[Yᵢₜ| Treatedᵢ, Preₜ] = λₜ+β
+
+Here i and t refer respectively to the language (R or Python) and to the week. While treated refer to the questions related to Python and Post refers to the period when ChatGPT was available. This simple difference might represent the causal effect of ChatGPT (β) + some time effect λₜ (e.g. seasonality).
+
+First difference for the control group:
+
+E[Yᵢₜ| Controlᵢ, Postₜ]-E[Yᵢₜ| Controlᵢ, Preₜ] = λₜ
+
+The simple difference for the control group does not include the treatment effect (as it is untreated) but only the λₜ.
+
+Hence the double difference will give:
+
+DiD = ( λₜ+β) — λₜ = β
+
+Under the assumption that the λₜ are identical for both groups (parallel trend assumption, discussed below), the double difference will allow us to identify β, the causal effect.
+
+The essence of this model lies in the parallel trend assumption. In order to claim a causal effect we should be convinced that without ChatGPT the evolution of posts on Stack Overflow for Python (treated) and for R (untreated) would be the same in the treatment period (after November 2022). However, this is obviously impossible to observe and hence to test directly (c.f. the Fundamental Problem of Causal Inference). (If you want to learn more about this concept and causal inference find my videos and articles on Towards Data Science: the Science and Art of Causality). However, it is possible to test if the trends are parallel before the shock, suggesting that the control group is a potentially good “counterfactual”. Two different placebo tests made with the data revealed that we cannot reject the parallel trend assumption for the pre-ChatGPT period (p-values of the tests respectively 0.722 and 0.397 (see online APPENDIX B)).
+
+Formal definition:
+
+Yᵢₜ = β₀ + β₁ Pythonᵢ + β₂ ChatGPTₜ + β₃ Pythonᵢ × ChatGPTₜ + uᵢₜ
+
+“i” and “t” correspond respectively to the topic of the question on Stack Overflow (i ∈ {R; Python}) and the week. Yᵢₜ represents the outcome variable: Number of questions (H1), Average question score (H2), and proportion of unanswered questions (H3). Pythonᵢ is a binary
+variable taking the value 1 if the question is related to Python and 0
+otherwise (related to R). ChatGPTₜ is another binary variable
+taking the value 1 from the release of ChatGPT and onwards and 0
+otherwise. uᵢₜ is an error term clustered at the coding language
+level (i).
+
+The essence of this model lies in the parallel trends assumption. In order to claim a causal effect we should be convinced that without ChatGPT the evolution of posts on Stack Overflow for Python (treated) and for R (untreated) would be the same in the treatment period (after November 2022). However, this is obviously impossible to observe and hence to test directly (c.f. the Fundamental Problem of Causal Inference). (If you want to learn more about this concept and causal inference find my videos and articles on the Science and Art of Causality). However, it is possible to test if the trends are parallel before the shock, suggesting that the control group is a good “counterfactual”. In this case, two different placebo tests reveal that we cannot reject the parallel trends assumption for the pre-ChatGPT period (p-values of the tests respectively 0.722 and 0.397 (see online APPENDIX B)).
+
+# Results
+
+## H1: ChatGPT decreases the number of questions asked on Stack Overflow.
+
+As presented in the introduction, the Diff-in-Diff model estimates a statistically significant drop of 937.7 (95% CI: [-1232.8, -642.55] ; p-value = 0.000) weekly questions on average for Python on Stack Overflow (see Figure 2 below). This represents a fall of 18% in weekly questions.
+
+## H2: ChatGPT increases the quality of the questions asked.
+
+ChatGPT might be helpful to answer questions (c.f. H1). However, when the chatbot cannot solve the issue, it is possible that it allows one to go further and get more information on the problem or some element of the solution. The platform allows us to test this hypothesis as users can vote for each question if they think that “This question shows research effort; it is useful and clear” (increase the score by 1 point), or not (decrease the score by 1 point). This second regression estimates that there is a 0.07 points (95% CI: [-0.0127 , 0.1518 ]; p-value: 0.095) increase in the questions’ score on average (see Figure 3) which represents a 41.2% increase.
+
+## H3: The remaining questions are more complex.
+
+Now that we have some pieces of evidence that ChatGPT is able to provide significant help (solve questions and help document the others), we would like to confirm that the remaining questions are more complex. To do so, we are going to look at two things. First, I find that the proportion of unanswered questions is raising (no answer could be a sign that the questions are more complex). More precisely I find a 2.21 percentage point (95% CI: [ 0.12, 0.30]; p-value: 0.039) increase in the proportion of questions unanswered (see Figure 4) which represents an increase of 6.8%. Second, we also find that the number of views per question is unchanged (we cannot reject the null hypothesis that it is unchanged, with a p-value of 0.477). This second test allows us to partially discard the alternative explanation that there are more unanswered questions due to the lower traffic.
+
+# Discussion
+
+These findings support the view that generative AI could revolutionize our work by taking care of routine questions, allowing us to focus on more complex problems requiring expertise while boosting our productivity.
+
+While this promise sounds exciting there is a reverse of the medal. First, low-qualified work might be replaced by chatbots. Second, such tool might affect (negatively) the way we learn. Personally, I see coding as biking or swimming: watching videos or following classes is not enough, you have to try and fail yourself. If the answers are too good and we don’t force ourselves to study, many people might struggle to learn. Third, if the mass of questions on Stack Overflow fall, it might reduce a valuable source for the training set of generative AI models hence, affecting their long-term performance.
+
+All those long term adverse effects are not clear yet and require careful analysis. Let me know what you think in the comments.
+
+[0] Gallea, Quentin. “From Mundane to Meaningful: AI’s Influence on Work Dynamics — evidence from ChatGPT and Stack Overflow” arXiv econ.GN (2023)
+
+[1] Hatzius, Jan. “The Potentially Large Effects of Artificial Intelligence on Economic Growth (Briggs/Kodnani).” Goldman Sachs (2023).
+
+[2] https://www.nytimes.com/2023/03/29/technology/ai-artificial-intelligence-musk-risks.html
+
+[3] Bhat, Vasudev, et al. “Min (e) d your tags: Analysis of question response time in stackoverflow.” 2014 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining (ASONAM 2014). IEEE, (2014)
