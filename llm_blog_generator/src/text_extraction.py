@@ -10,14 +10,15 @@ import pandas as pd
 
 from src.config import CHROMEDRIVER_PATH
 #=======================================================================================================================
-def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=None):
+def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=None, publisher_blog=None):
     """Extracts only the blog text with titles and subtitles from Medium/Google DeepMind"""
 
     if source == "Medium":
         if isinstance(blog, pd.Series):
             url_blog = blog.url_blog
             author_blog = blog.author_blog
-        elif url_blog is None or author_blog is None:
+            publisher_blog = blog.publisher_blog
+        elif url_blog is None or author_blog is None or publisher_blog is None:
             return None
 
     # Set Chrome options
@@ -61,7 +62,7 @@ def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=Non
 
         skip_phrases = []
         if source == "Medium":
-            skip_phrases = ["follow", f"{author_blog.lower()}"]
+            skip_phrases = ["subscribe", "follow", f"{author_blog.lower()}", f"{publisher_blog.lower()}"]
         elif source == "DeepMind":
             skip_phrases = ["research", "impact", "responsibility & safety"]
 
@@ -81,7 +82,7 @@ def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=Non
                 elif tag_name == "li":
                     full_text += f"    * {text}\n"
                 elif tag_name == "p" and text.lower() not in skip_phrases and not text.isdigit():
-                    full_text += f"{text}\n"
+                    full_text += f"\n{text}\n"
 
     except Exception as e:
         full_text = f"Error: {e}"
