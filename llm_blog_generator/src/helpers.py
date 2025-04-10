@@ -1,5 +1,4 @@
 import os
-import logging
 
 from langchain.vectorstores import FAISS
 
@@ -18,22 +17,27 @@ def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
                 llm_response = chain.invoke({**examples, **tmp})
 
                 if llm_response:
-                    """print(f"----------\n"
-                        f"Blog ID: {blog.id}\n"
-                        f"Blog title: {blog.title_blog}\n"
-                        f"Referenced paper title: {blog.title_paper}\n"
-                        f"LLM Assessment: {llm_response["parsed"].overall_assessment}\n")"""
                     return llm_response["parsed"].overall_assessment
-                """else:
-                    print(f"Warning: Received invalid response on attempt {attempt + 1}.\n Retrying...")"""
 
             except Exception as e:
-                print(f"Error processing blog \"{blog.title_blog}\":\n{e}\n Retrying...")
+                print(f"Error processing blog \"{blog.title_blog}\":\n{e}\nRetrying...")
 
-        print(f"Failed to get valid assessment after {max_retries} attempts.")
-        return None
+        print(f"Failed to get valid assessment after the maximum number of attempts {max_retries}.\n"
+              f"Blog with ID: {blog.id} is not evaluated.")
+        return -1
 
-    llm_assessment = df.apply(process_blog, axis=1)
+    llm_assessment = []
+
+    # Process each blog in the DataFrame
+    for index, blog in df.iterrows():
+        result = process_blog(blog)
+        if result == -1:
+            print(f"Stopping experiment.")
+            llm_assessment.append(-1)
+            break
+
+        llm_assessment.append(result)
+
     return llm_assessment
 #=======================================================================================================================
 def get_examples():
@@ -59,23 +63,21 @@ def create_vector_store():
     """Creates a new FAISS vector store from the provided data."""
     # Data processing
     blogs = pd.read_csv(PREPROCESSED_BLOG_DATASET_PATH)
-    valid_blogs = blogs[blogs["engagement_level"].isin(["Good", "Very Good", "Excellent"])].copy()
+    valid_blogs = blogs[blogs["engagement_level"].isin(["Very Good", "Excellent"])].copy()
     valid_blogs["full_paper"] = valid_blogs["url_paper"].apply(extract_paper_text)
 
     elements = []
-    for text, blog_url, author, claps, comments in zip(valid_blogs["full_paper"],
-                                                       valid_blogs["url_blog"],
-                                                       valid_blogs["author_blog"]):
-        embedding = embedding_model.encode(text, clean_up_tokenization_spaces=True)
+    for text, blog_url, author in zip(valid_blogs["full_paper"],
+                                      valid_blogs["url_blog"],
+                                      valid_blogs["author_blog"]):
         metadata = {
-            "full_text": text,
             "blog_url": blog_url,
             "author": author
         }
-        elements.append((embedding, metadata))
+        elements.append((text, metadata))
 
     vector_store = FAISS.from_texts(
-        texts=[element[1]["full_text"] for element in elements],
+        texts=[element[0] for element in elements],
         embedding=langchain_embedding_model,
         metadatas=[element[1] for element in elements]
     )
@@ -86,22 +88,22 @@ def create_vector_store():
 def load_or_create_vector_store(vector_store_path=VECTOR_STORE_PATH):
     """Loads the FAISS vector store or creates it if it doesn't exist."""
     if os.path.exists(vector_store_path):
-        logging.info("Loading vector store...")
+        print("Loading vector store...")
         try:
             vector_store = FAISS.load_local(vector_store_path,
                                             embeddings=langchain_embedding_model,
                                             allow_dangerous_deserialization=True)
-            logging.info("Vector store loaded successfully.")
+            print("Vector store loaded successfully.")
         except Exception as e:
-            logging.error(f"Error loading vector store: {e}")
+            print(f"Error loading vector store: {e}")
             raise
     else:
-        logging.warning("Vector store does not exist. Creating new one...")
+        print("Vector store does not exist. Creating new one...")
         try:
             vector_store = create_vector_store()
-            logging.info("New vector store created successfully.")
+            print("New vector store created successfully.")
         except Exception as e:
-            logging.error(f"Error creating vector store: {e}")
+            print(f"Error creating vector store: {e}")
             raise
     return vector_store
 #=======================================================================================================================
