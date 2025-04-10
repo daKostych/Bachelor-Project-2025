@@ -1,0 +1,16 @@
+Model,Experiment_ID,RMSE,MAE
+Gemini 2.0 Flash,0,36.6,29.5
+Gemini 2.0 Flash,1,33.9,27.5
+Gemini 2.0 Flash,2,33.7,28.1
+Gemini 2.0 Flash,3,32.9,27.2
+Gemini 2.0 Flash,4,34.5,28.1
+Gemini 2.0 Flash-Lite,0,34.0,27.7
+Gemini 2.0 Flash-Lite,1,33.0,25.5
+Gemini 2.0 Flash-Lite,2,33.9,27.2
+Gemini 2.0 Flash-Lite,3,34.9,28.6
+Gemini 2.0 Flash-Lite,4,34.8,27.5
+Gemini 1.5 Flash,0,37.0,30.5
+Gemini 1.5 Flash,1,36.6,30.3
+Gemini 1.5 Flash,2,37.7,30.9
+Gemini 1.5 Flash,3,36.1,29.0
+Gemini 1.5 Flash,4,35.9,29.3
