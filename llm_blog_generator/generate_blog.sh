@@ -1,3 +1,7 @@
+#!/bin/bash
+
+poetry install --no-root
+
 cd src
-python main.py
+PYTHONPATH=$(pwd)/.. poetry run python main.py
 cd ..
