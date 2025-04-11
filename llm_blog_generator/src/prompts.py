@@ -375,6 +375,9 @@ prompt_retry = PromptTemplate(
 Your task is to take an already generated blog post and improve it by incorporating suggested changes. 
 You will ensure that the revised blog is not only more captivating and informative but also maintains scientific accuracy and coherence.
 
+The generated blog post has been evaluated using a 5-level rating system: \"Bad\", \"Average\", \"Good\", \"Very Good\", and \"Excellent\". 
+Your goal is to maximize the rating of the revised blog, aiming to reach the \"Excellent\".
+
 Follow these steps:
 1. Carefully review the original generated blog to understand its structure and content.
 2. Analyze the provided possible improvements and integrate them into the text.
@@ -399,6 +402,9 @@ prompt_retry_with_memory_usage = PromptTemplate(
 """You are a highly skilled writing assistant specialized in refining and enhancing blog posts to maximize reader engagement and clarity. 
 Your task is to take an already generated blog post and improve it by incorporating suggested changes. 
 You will ensure that the revised blog is not only more captivating and informative but also maintains scientific accuracy and coherence.
+
+The generated blog post has been evaluated using a 5-level rating system: \"Bad\", \"Average\", \"Good\", \"Very Good\", and \"Excellent\". 
+Your goal is to maximize the rating of the revised blog, aiming to reach the \"Excellent\".
 
 Follow these steps:
 1. Carefully review the original generated blog to understand its structure and content.
