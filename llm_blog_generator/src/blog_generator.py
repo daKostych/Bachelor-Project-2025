@@ -1,35 +1,31 @@
-import logging
 import datetime
+import os.path
 from datetime import datetime
 
 from src.helpers import get_examples, load_or_create_vector_store
 from src.models_setup import gemini_2_flash, embedding_model
 from src.text_extraction import *
-from src.prompts import prompt_five_shots, prompt_rag, prompt_retry
+from src.prompts import prompt_zero_cot, prompt_rag, prompt_retry, prompt_retry_with_memory_usage
 from src.config import *
-from src.output_formats import BlogClassification, BlogGeneration
+from src.output_formats import *
+from src.long_term_memory import LongTermMemory
 #=======================================================================================================================
 class BlogGenerator:
     """Generate engagement blog from scientific paper"""
     def __init__(self,
-                 evaluator=gemini_2_flash, generator=None,
-                 min_engagement_level="Good", max_retries=3, max_retries_call=3,
-                 experiment=False):
+                 evaluator=gemini_2_flash, generator=gemini_2_flash,
+                 max_attempts=3, max_attempts_call=3,
+                 experiment=False, use_memory=True, use_reflexion=True):
         """Initializes the BlogGenerator object with configuration for blog generation and evaluation."""
-        self.__generator = None
-        if not generator:
-            self.__generator = evaluator.with_structured_output(BlogGeneration, include_raw=True)
-        else:
-            self.__generator = generator.with_structured_output(BlogGeneration, include_raw=True)
-        self.__evaluator = evaluator.with_structured_output(BlogClassification, include_raw=True)
+        self.__generator = generator.with_structured_output(BlogGeneration, include_raw=True)
+        self.__evaluator = evaluator.with_structured_output(BlogClassificationCoT, include_raw=True)
 
         self.__generator_init_prompt = prompt_rag
-        self.__generator_retry_prompt = prompt_retry
-        self.__evaluator_prompt = prompt_five_shots
+        self.__generator_retry_prompt = (prompt_retry_with_memory_usage if use_memory else prompt_retry)
+        self.__evaluator_prompt = prompt_zero_cot
 
-        self.__min_engagement_level = min_engagement_level
-        self.__max_retries = max_retries
-        self.__max_retries_call = max_retries_call
+        self.max_attempts = max_attempts
+        self.__max_attempts_call = max_attempts_call
 
         self.__start_time = None
         self.__token_usage = 0
@@ -39,8 +35,24 @@ class BlogGenerator:
         self.__vector_store = load_or_create_vector_store()
 
         self.experiment_mode = experiment
+        self.use_reflexion = use_reflexion
+        self.use_memory = use_memory
+        self.__memory = LongTermMemory()
 
-        logging.info("BlogGenerator initialized with vector store.")
+        self.__result_blog_path = f"{RESULTS_PATH}/blog"
+
+        print("BlogGenerator initialized with vector store.")
+
+    def save_memory(self):
+        """Saves memory to disk."""
+        self.__memory.save_to_disk()
+
+    def get_relevant_memory_context(self, blog):
+        """
+        Retrieves the most relevant memory context for a given blog, including the most similar blog and its metadata.
+        """
+        similar_blog, metadata = self.__memory.retrieve_memory(blog)
+        return similar_blog, metadata
 
     def find_most_similar_article(self, query_text):
         """Finds the most similar article to the provided query text in the vector store."""
@@ -48,11 +60,11 @@ class BlogGenerator:
         results = self.__vector_store.similarity_search_by_vector(query_embedding, k=2)
 
         if results:
-            most_similar = results[1]
-            logging.info(f"Found most similar article.")
-            return most_similar.metadata
+            most_similar = results[(1 if self.experiment_mode else 0)]
+            print(f"Found most similar article.")
+            return most_similar.page_content, most_similar.metadata
         else:
-            logging.warning("No similar article found.")
+            print("No similar article found.")
             return None
 
     def check_limits(self):
@@ -64,29 +76,31 @@ class BlogGenerator:
 
         # Check for daily limit (RPD)
         if self.__total_request_cnt >= GEMINI_2_FLASH_RPD:
-            logging.error("Daily request limit exceeded!")
+            print("Daily request limit exceeded!")
             raise Exception("Daily request limit exceeded")
 
         # Check for RPM limit (Requests per minute)
         if self.__request_cnt >= GEMINI_2_FLASH_RPM:
             # Sleep until the next minute
-            sleep_time = 60 - (current_time.second - self.__start_time.second) if self.__start_time else 60
-            logging.info(f"RPM limit exceeded, sleeping for {sleep_time} seconds.")
+            elapsed_seconds = (current_time - self.__start_time).total_seconds()
+            sleep_time = 60 - elapsed_seconds if self.__start_time else 60
+            print(f"RPM limit exceeded, sleeping for {round(sleep_time)} seconds.")
             time.sleep(sleep_time)
 
         # Check for TPM limit (Tokens per minute)
         if self.__token_usage >= GEMINI_2_FLASH_TPM:
             # Sleep until the next minute
-            sleep_time = 60 - (current_time.second - self.__start_time.second) if self.__start_time else 60
-            logging.info(f"TPM limit exceeded, sleeping for {sleep_time} seconds.")
+            elapsed_seconds = (current_time - self.__start_time).total_seconds()
+            sleep_time = 60 - elapsed_seconds if self.__start_time else 60
+            print(f"TPM limit exceeded, sleeping for {round(sleep_time)} seconds.")
             time.sleep(sleep_time)
 
     def safe_invoke(self, chain, prompt_variables):
         """Invoke the model while respecting the RPD, RPM, and TPM limits."""
-        logging.info("Checking request limits before invoking the model...")
+        print("Checking request limits before invoking the model...")
         self.check_limits()
 
-        logging.info("Invoking the model...")
+        print("Invoking the model...")
         response = chain.invoke(prompt_variables)
 
         # Update counters after successful invocation
@@ -105,15 +119,27 @@ class BlogGenerator:
         if response:
             self.__token_usage += response["raw"].usage_metadata["total_tokens"]
 
-        logging.info(f"Model invoked successfully. Total requests today: {self.__total_request_cnt}, RPM: {self.__request_cnt}, TPM: {self.__token_usage}")
+        print(f"Model invoked successfully. Total requests today: {self.__total_request_cnt}, RPM: {self.__request_cnt}, TPM: {self.__token_usage}")
         return response
 
-    def generate_blog(self, paper_url):
+    def handle_call_limit(self, entity, attempt, e):
+        if attempt + 1 == self.__max_attempts_call:
+            print(f"{e}\nError: Failed to get valid response from {entity} after the maximum number of attempts.")
+            return None, None
+        else:
+            print(f"{e}\nError: Failed to get valid response from {entity} after {attempt + 1} attempts."
+              f"\nRetrying...")
+            return "Retry", "Retry"
+
+    def generate_blog(self, paper_url=None, paper_text=None):
         """Generates a blog post based on a scientific paper, using retries and prompt refinement."""
-        logging.info(f"Extracting paper text from URL: {paper_url}")
-        paper_text = extract_paper_text(paper_url)
+        print("-" * 10)
+        if paper_url and not paper_text:
+            print(f"Extracting paper text from URL: {paper_url}")
+            paper_text = extract_paper_text(paper_url)
+
         examples = get_examples()
-        retries = 0
+        attempts = 0
         best_blog, blog = None, None
         best_engagement_level, engagement_level = "Bad", None
         possible_improvements = None
@@ -123,24 +149,39 @@ class BlogGenerator:
         generation_chain = self.__generator_init_prompt | self.__generator
         evaluation_chain = self.__evaluator_prompt | self.__evaluator
 
-        while retries < self.__max_retries:
-            logging.info(f"Attempt number {retries + 1}: Generating blog...")
+        # Find a relevant example blog for the first generation
+        example_paper, example_blog_metadata = self.find_most_similar_article(paper_text)
+        example_blog = example_blog_metadata["blog_full_text"]
 
-            for attempt in range(self.__max_retries_call):
+        while attempts < self.max_attempts:
+            print(f"Attempt number {attempts + 1}: Generating blog...")
+
+            for attempt_call in range(self.__max_attempts_call):
                 try:
-                    if retries >= 1:
+                    if attempts >= 1 and self.use_reflexion:
                         generation_chain = self.__generator_retry_prompt | self.__generator
-                        generator_response = self.safe_invoke(generation_chain,
-                                                              {
-                                                                  "generated_blog": blog,
-                                                                  "possible_improvements": possible_improvements
-                                                              })
+                        if not self.use_memory:
+                            print("Using retry prompt with Reflexion...")
+                            generator_response = self.safe_invoke(generation_chain,
+                                                                  {
+                                                                      "generated_blog": blog,
+                                                                      "possible_improvements": possible_improvements
+                                                                  })
+                        else:
+                            print("Using retry prompt with Reflexion and memory module...")
+                            similar_blog, metadata = self.get_relevant_memory_context(blog)
+                            generator_response = self.safe_invoke(generation_chain,
+                                                                  {
+                                                                      "generated_blog": blog,
+                                                                      "possible_improvements": possible_improvements,
+                                                                      "similar_blog": similar_blog,
+                                                                      "similar_blog_score":
+                                                                          metadata["overall_assessment"],
+                                                                      "similar_blog_improvements":
+                                                                          metadata["improvements"]
+                                                                  })
                     else:
-                        # Find a relevant example blog
-                        generation_example = self.find_most_similar_article(paper_text)
-                        example_paper = generation_example["full_text"]
-                        example_blog = extract_blog_text(url_blog=generation_example["blog_url"],
-                                                         author_blog=generation_example["author"])
+                        print("Using RAG prompt...")
                         generator_response = self.safe_invoke(generation_chain,
                                                               {
                                                                   "paper_text": paper_text,
@@ -149,53 +190,93 @@ class BlogGenerator:
                                                               })
                     if generator_response:
                         blog = generator_response["parsed"].text
-                        logging.info("Blog generated successfully.")
+                        print("Blog generated successfully.")
                         break
                 except Exception as e:
-                    logging.error(f"{e}\nError: Failed to get valid response from generator after {attempt + 1} attempts.\nRetrying...")
+                    history, best_history = self.handle_call_limit("generator", attempt_call, e)
+                    if not history and not best_history and self.experiment_mode:
+                        return history, best_history
+                    elif not history and not best_history:
+                        blog = None
 
-            for attempt in range(self.__max_retries_call):
+            if not blog:
+                break
+
+            if self.max_attempts != 1:
+                metadata = {}
+                content = None
+                for attempt_call in range(self.__max_attempts_call):
+                    try:
+                        evaluator_response = self.safe_invoke(evaluation_chain,
+                                                              {
+                                                                  "blog_text" : blog,
+                                                                  **examples
+                                                              })
+                        if evaluator_response:
+                            content = evaluator_response["parsed"]
+                            engagement_level = content.overall_assessment
+                            assessment_history.append(CLASSIFICATION_MAP[engagement_level])
+                            possible_improvements = "\n".join(
+                                [f"{i+1}. {improvement}" for i, improvement in enumerate(content.improvements)]
+                            )
+                            print(f"Blog evaluated successfully. Evaluation: {engagement_level}.")
+                            metadata = {
+                                "overall_assessment": content.overall_assessment,
+                                "improvements": possible_improvements
+                            }
+                            break
+                    except Exception as e:
+                        history, best_history = self.handle_call_limit("evaluator", attempt_call, e)
+                        if not history and not best_history and self.experiment_mode:
+                            return history, best_history
+                        elif not history and not best_history:
+                            content = None
+
+                if not content:
+                    break
+
                 try:
-                    evaluator_response = self.safe_invoke(evaluation_chain,
-                                                          {
-                                                              "blog_text" : blog,
-                                                              **examples
-                                                          })
-                    if evaluator_response:
-                        content = evaluator_response["parsed"]
-                        engagement_level = content.overall_assessment
-                        assessment_history.append(CLASSIFICATION_MAP[engagement_level])
-                        possible_improvements = "\n".join(
-                            [f"{i+1}. {improvement}" for i, improvement in enumerate(content.improvements)]
-                        )
-                        logging.info(f"Blog evaluated successfully. Evaluation: {engagement_level}.")
-                        break
+                    self.__memory.add_to_memory(blog, metadata)
                 except Exception as e:
-                    logging.error(f"{e}\nError: Failed to get valid response from evaluator after {attempt + 1} attempts.\nRetrying...")
+                    print(f"{e}\nError: Failed to add new blog to memory.")
 
-            # If the engagement level is good or better, return the blog
-            if engagement_level in ["Good", "Very Good", "Excellent"]:
-                logging.info("Saving blog.")
-                with open(f"{RESULTS_PATH}/blog", "w", encoding="utf-8") as file:
-                    file.write(blog)
-                if not self.experiment_mode:
+                # If the engagement level is "Very Good" or better, and it is not an experiment, return the blog
+                if (engagement_level in ["Very Good", "Excellent"]) and (not self.experiment_mode):
+                    print(f"Saving blog in file: {self.__result_blog_path}")
+                    with open(self.__result_blog_path, "w", encoding="utf-8") as file:
+                        file.write(blog)
+                    self.save_memory()
                     return blog
 
-            if CLASSIFICATION_MAP[engagement_level] >= CLASSIFICATION_MAP[best_engagement_level]:
-                best_engagement_level = engagement_level
-                best_blog = blog
+                if CLASSIFICATION_MAP[engagement_level] >= CLASSIFICATION_MAP[best_engagement_level]:
+                    best_engagement_level = engagement_level
+                    best_blog = blog
 
-            best_assessment_history.append(CLASSIFICATION_MAP[best_engagement_level])
+                best_assessment_history.append(CLASSIFICATION_MAP[best_engagement_level])
 
-            if not self.experiment_mode:
-                logging.info(f"Blog generation attempt {retries + 1} unsuccessful. Retrying...")
-            retries += 1
+                if not self.experiment_mode:
+                    print(f"Blog generation attempt {attempts + 1} unsuccessful. Retrying...")
+
+            attempts += 1
+
+        self.save_memory()
 
         if best_blog:
-            logging.info("Saving best blog.")
-            with open(f"{RESULTS_PATH}/blog", "w", encoding="utf-8") as file:
+            print(f"Saving best blog in file: {self.__result_blog_path}")
+            with open(self.__result_blog_path, "w", encoding="utf-8") as file:
                 file.write(best_blog)
+        elif not best_blog and blog:
+            best_blog = blog
+            print(f"Saving blog in file: {self.__result_blog_path}")
+            with open(self.__result_blog_path, "w", encoding="utf-8") as file:
+                file.write(blog)
+        elif not best_blog and not blog:
+            print(f"Unsuccessful generation of the blog, please try again.")
+            if os.path.exists(self.__result_blog_path):
+                open(self.__result_blog_path, "w").close()
+
         if self.experiment_mode:
             return assessment_history, best_assessment_history
         else:
+            print(f"Generated blog is saved in file: {self.__result_blog_path}")
             return best_blog
