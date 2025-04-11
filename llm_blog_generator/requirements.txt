@@ -1,0 +1,2 @@
+# Dependencies are managed with Poetry. Run: chmod +x generate_blog.sh; ./generate_blog.sh
+poetry
