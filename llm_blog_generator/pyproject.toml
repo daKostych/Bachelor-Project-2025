@@ -26,6 +26,7 @@ scipy = "1.15.2"
 seaborn = "0.13.2"
 selenium = "4.31.0"
 sentence-transformers = "4.0.1"
+pymupdf = "^1.25.5"
 
 
 [build-system]
