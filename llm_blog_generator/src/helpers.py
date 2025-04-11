@@ -1,6 +1,6 @@
 import os
 
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 
 from src.text_extraction import *
 from src.config import EXAMPLES_PATH, VECTOR_STORE_PATH, PREPROCESSED_BLOG_DATASET_PATH
@@ -67,14 +67,12 @@ def create_vector_store():
     valid_blogs["full_paper"] = valid_blogs["url_paper"].apply(extract_paper_text)
 
     elements = []
-    for text, blog_url, author in zip(valid_blogs["full_paper"],
-                                      valid_blogs["url_blog"],
-                                      valid_blogs["author_blog"]):
+    for paper_text, blog_text in zip(valid_blogs["full_paper"],
+                                     valid_blogs["blog_full_text"]):
         metadata = {
-            "blog_url": blog_url,
-            "author": author
+            "blog_full_text": blog_text
         }
-        elements.append((text, metadata))
+        elements.append((paper_text, metadata))
 
     vector_store = FAISS.from_texts(
         texts=[element[0] for element in elements],
@@ -88,7 +86,7 @@ def create_vector_store():
 def load_or_create_vector_store(vector_store_path=VECTOR_STORE_PATH):
     """Loads the FAISS vector store or creates it if it doesn't exist."""
     if os.path.exists(vector_store_path):
-        print("Loading vector store...")
+        print(f"Loading vector store from: {vector_store_path}")
         try:
             vector_store = FAISS.load_local(vector_store_path,
                                             embeddings=langchain_embedding_model,
