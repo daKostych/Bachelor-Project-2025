@@ -255,7 +255,11 @@ class BlogGenerator:
                 best_assessment_history.append(CLASSIFICATION_MAP[best_engagement_level])
 
                 if not self.experiment_mode:
-                    print(f"Blog generation attempt {attempts + 1} unsuccessful. Retrying...")
+                    if attempts + 1 == self.max_attempts:
+                        print(f"Failed to generate at least \"Very Good\" blog after the maximum number of attempts."
+                              f"Best engagement level in previous attempts: {best_engagement_level}")
+                    else:
+                        print(f"Blog generation attempt {attempts + 1} unsuccessful. Retrying...")
 
             attempts += 1
 
