@@ -21,6 +21,8 @@ CLASSIFICATION_ACC_RESULTS_PATH = BASE_DIR / "data" / "experiment_results" / "cl
 CLASSIFICATION_RMSE_RESULTS_PATH = BASE_DIR / "data" / "experiment_results" / "classification_RMSE.csv"
 CLASSIFICATION_MAE_RESULTS_PATH = BASE_DIR / "data" / "experiment_results" / "classification_MAE.csv"
 DEEPMIND_BLOG_EVALUATION_RESULTS_PATH = BASE_DIR / "data" / "experiment_results" / "deepmind_blog_evaluation.csv"
+GENERATOR_ASSESSMENTS_PATH = BASE_DIR / "data" / "experiment_results" / "generator_assessments.json"
+GENERATOR_BEST_ASSESSMENTS_PATH = BASE_DIR / "data" / "experiment_results" / "generator_best_assessments.json"
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 
