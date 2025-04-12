@@ -86,8 +86,8 @@ if __name__ == "__main__":
     max_attempts_call = number_from_interval(f"Maximum number of attempts to get a valid response from the model "
                                              f"(from interval [{interval[0]}, {interval[1]}]): ",
                                              interval)
-    use_memory = yes_or_no("Do you want to use the long-term memory module? (yes/no): ")
     use_reflexion = yes_or_no("Do you want to enable self-reflection mechanism? (yes/no): ")
+    use_memory = yes_or_no("Do you want to use the long-term memory module? (yes/no): ")
     print()
 
     generator = BlogGenerator(max_attempts=max_attempts,
