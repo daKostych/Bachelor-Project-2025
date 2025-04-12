@@ -1,4 +1,5 @@
 import sys
+import os
 import warnings
 from pathlib import Path
 
@@ -7,7 +8,6 @@ if str(Path().resolve().parent) not in sys.path:
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 
