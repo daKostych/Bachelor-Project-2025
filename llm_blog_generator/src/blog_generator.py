@@ -15,7 +15,7 @@ class BlogGenerator:
     def __init__(self,
                  evaluator=gemini_2_flash, generator=gemini_2_flash,
                  max_attempts=3, max_attempts_call=3,
-                 experiment=False, use_memory=True, use_reflexion=True):
+                 experiment=False, use_memory=False, use_reflexion=False):
         """Initializes the BlogGenerator object with configuration for blog generation and evaluation."""
         self.__generator = generator.with_structured_output(BlogGeneration, include_raw=True)
         self.__evaluator = evaluator.with_structured_output(BlogClassificationCoT, include_raw=True)
@@ -35,13 +35,31 @@ class BlogGenerator:
         self.__vector_store = load_or_create_vector_store()
 
         self.experiment_mode = experiment
-        self.use_reflexion = use_reflexion
-        self.use_memory = use_memory
+        self.__use_reflexion = None
+        self.__use_memory = None
+        self.set_usage_of_reflexion(use_reflexion)
+        self.set_usage_of_memory(use_memory)
+
         self.__memory = LongTermMemory()
 
         self.__result_blog_path = f"{RESULTS_PATH}/blog"
 
         print("BlogGenerator initialized with vector store.")
+
+    def set_usage_of_memory(self, bool_value):
+        self.__generator_retry_prompt = (prompt_retry_with_memory_usage if bool_value else prompt_retry)
+        self.__use_memory = bool_value
+        if bool_value and not self.__use_reflexion:
+            self.__use_reflexion = True
+            print(f"\"use_reflexion\" parameter is set to \"True\", "
+                  f"because long-term memory module can not be used without reflexion mechanism.")
+
+    def set_usage_of_reflexion(self, bool_value):
+        self.__use_reflexion = bool_value
+        if not bool_value and self.__use_memory:
+            self.__use_memory = False
+            print(f"\"use_memory\" parameter is set to \"False\", "
+                  f"because long-term memory module can not be used without reflexion mechanism.")
 
     def save_memory(self):
         """Saves memory to disk."""
@@ -158,9 +176,9 @@ class BlogGenerator:
 
             for attempt_call in range(self.__max_attempts_call):
                 try:
-                    if attempts >= 1 and self.use_reflexion:
+                    if attempts >= 1 and self.__use_reflexion:
                         generation_chain = self.__generator_retry_prompt | self.__generator
-                        if not self.use_memory:
+                        if not self.__use_memory:
                             print("Using retry prompt with Reflexion...")
                             generator_response = self.safe_invoke(generation_chain,
                                                                   {
