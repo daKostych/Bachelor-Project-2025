@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 import fitz
 import pandas as pd
 
-from src.config import CHROMEDRIVER_PATH
+from src.config import CHROMEDRIVER_PATH, TMP_PDF_PATH
 #=======================================================================================================================
 def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=None, publisher_blog=None):
     """Extracts only the blog text with titles and subtitles from Medium/Google DeepMind"""
@@ -96,14 +96,13 @@ def extract_paper_text(pdf_url):
     """Download PDF and extract text"""
     try:
         response = requests.get(pdf_url)
-        pdf_path = "../tmp/temp_paper.pdf"
 
         # Save PDF
-        with open(pdf_path, "wb") as f:
+        with open(TMP_PDF_PATH, "wb") as f:
             f.write(response.content)
 
         # Open PDF and extract text
-        doc = fitz.open(pdf_path)
+        doc = fitz.open(TMP_PDF_PATH)
         text = "\n".join([page.get_text() for page in doc])
 
         return text
