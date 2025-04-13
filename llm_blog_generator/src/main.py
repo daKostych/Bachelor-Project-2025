@@ -76,6 +76,7 @@ def read_paper(query):
                 return file.read()
         except Exception as error:
             print(f"Failed to read file.\n{error}")
+            raise
 
 if __name__ == "__main__":
     # Collecting parameters for blog generator
