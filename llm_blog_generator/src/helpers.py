@@ -10,27 +10,27 @@ def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     """Extract model assessment of the blog from formated output"""
     chain = prompt_template | model
 
-    def process_blog(blog):
+    def process_blog(blog_id, blog_info):
         for attempt in range(max_retries):
             try:
-                tmp = {"blog_text" : blog.blog_full_text}
+                tmp = {"blog_text" : blog_info["blog_full_text"]}
                 llm_response = chain.invoke({**examples, **tmp})
 
                 if llm_response:
                     return llm_response["parsed"].overall_assessment
 
             except Exception as e:
-                print(f"Error processing blog \"{blog.title_blog}\":\n{e}\nRetrying...")
+                print(f"Error processing blog \"{blog_info["title_blog"]}\":\n{e}\nRetrying...")
 
         print(f"Failed to get valid assessment after the maximum number of attempts {max_retries}.\n"
-              f"Blog with ID: {blog.id} is not evaluated.")
+              f"Blog with ID: {blog_id} is not evaluated.")
         return -1
 
     llm_assessment = []
 
     # Process each blog in the DataFrame
     for index, blog in df.iterrows():
-        result = process_blog(blog)
+        result = process_blog(index, blog)
         if result == -1:
             print(f"Stopping experiment.")
             llm_assessment.append(-1)
