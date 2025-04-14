@@ -1,83 +1,5 @@
-id,title_blog,url_blog,author_blog,author_followers,claps,comments,publisher_followers,title_paper,url_paper,publisher_blog,blog_full_text,engagement_score,normalized_engagement_score,engagement_level
-0,Self-Generated Critiques Boost Reward Modeling for LanguageModels — Paper Review,https://medium.com/@sulbha.jindal/self-generated-critiques-boost-reward-modeling-for-languagemodels-paper-review-f013b99b7d47,Sulbha Jain,41,21,0,0.0,Self-Generated Critiques Boost Reward Modeling for Language Models,https://arxiv.org/pdf/2411.16646,Sulbha Jain,"# Self-Generated Critiques Boost Reward Modeling for LanguageModels — Paper Review
-
-Paper — https://arxiv.org/pdf/2411.16646
-
-Reinforcement Learning from Human Feedback (RLHF) has become a critical methodology for aligning large language models (LLMs) with human preferences. At the core of RLHF lies the reward model (RM), which is designed to evaluate model outputs by assigning scores that reflect their alignment with human judgments. These scores guide the optimization process during training, such as providing reward signals in Proximal Policy Optimization (PPO), thereby encouraging LLMs to generate responses that are more helpful, honest, and harmless. This iterative process enhances the practical quality of LLM outputs in real-world applications.
-
-## Current challenge
-
-Typically, reward models are trained using preference pairs and optimized through pairwise logistic loss to produce a scalar score for each response. However, this scalar output is often hard to interpret and underutilizes the inherent language modeling capabilities of LLMs derived from pretraining and post-training. These limitations can weaken the feedback signals in RLHF, resulting in suboptimal policy updates. An alternative approach is the “LLM-as-a-judge” paradigm, where the LLM generates critiques and optionally provides discrete scores as proxies for response quality. This method leverages the model’s reasoning abilities more effectively, potentially addressing some of the shortcomings of traditional reward models
-
-Incorporating critiques into reward modeling poses two significant challenges. First, there is the issue of conflicting objectives: generating critiques relies on language modeling capabilities, whereas traditional reward models output scalar values, making their integration into the language modeling process complex. Second, there are limitations with evaluators; off-the-shelf language models often lack the effectiveness needed for evaluation, and fine-tuning these models necessitates costly human-generated or annotated critiques. While knowledge distillation offers a potential solution by enabling a joint training approach to learn how to generate critiques and rewards simultaneously, it falls short when it comes to enhancing frontier models in situations where a stronger teacher model is unavailable. Here is Critic-RM, a new framework from Meta Researchers that enhances reward models using synthetic critiques, without relying on strong LLM teachers.
-
-## Methodology
-
-Critic-RM utilizes an instruction-finetuned large language model (LLM) as its foundation, generating multiple candidate critiques, each accompanied by a discrete score for individual responses. The process begins with a consistency-guided filtering technique that retains only those critiques whose scores align with human-annotated preference labels.
-
-To further improve the quality of these synthetic critiques, two additional strategies — summarization and ranking — are proposed to refine the critiques used in training the reward model. The framework investigates the application of an off-the-shelf instruction-finetuned LLM, for both critique generation and reward modeling. Initially, Critic-RM generates candidate critiques for each prompt-response pair, followed by a filtering step aimed at minimizing the influence of potentially noisy rationales that could lead to incorrect predictions. This approach allows for the augmentation of preference pairs with additional critiques, ultimately enhancing the precision of reward modeling.
-
-After generating critiques for each response, the primary challenge is developing an effective training strategy to integrate critique modeling and scalar reward prediction objectives. To address this, we propose a simple weighting strategy that balances these objectives. Initially, the model prioritizes critique modeling loss, then gradually shifts its focus toward reward prediction, utilizing both the response and the critique. This balanced approach enables the model to excel in generating high-quality critiques while maintaining accurate reward predictions.
-
-In Critic-RM, an additional step is introduced during inference for each (prompt, response) pair. Given a (prompt, response) pair $$(x, y)$$, the model first generates a critique $$z \sim q_\phi(x, y)$$. It then predicts the reward for the response as $$r = r_\psi(x, [y, z])$$, where the reward prediction incorporates both the response and its associated critique. This process ensures a more nuanced and precise evaluation of responses.
-
-## Results
-
-Incorporating critiques into reward modeling has demonstrated significant benefits, particularly with the Critic-RM framework, which consistently outperforms the baselines in this study. Specifically, when trained on the same preference data, Critic-RM achieves an improvement of 3.7% to 4.7% over standard reward models. The quality of critiques plays a crucial role; comparisons reveal that other models incorporating critiques show smaller performance gains than Critic-RM when evaluated against the standard reward model. Additionally, performance enhancements are observed for both Critic-RM and its baselines when multiple critiques are generated during inference, particularly benefiting reasoning tasks.
-
-## Summary
-
-Researchers have developed Critic-RM, an innovative self-critiquing framework aimed at enhancing reward modeling for large language models (LLMs). This novel approach leverages the inherent capabilities of LLMs to generate and refine critiques, implementing a self-improvement mechanism that enhances both the quality of critiques and the accuracy of reward predictions. The findings from this research emphasize the efficacy of Critic-RM in improving reward modeling accuracy and underscore the crucial role of high-quality critiques in this process. Beyond merely enhancing precision in reward modeling, the framework has demonstrated robust performance across various benchmarks, including RewardBench and CrossEval, highlighting its potential to significantly advance the field of language model optimization and alignment with human preferences.
-
-## Appendix
-    * Paper link — https://arxiv.org/pdf/2411.16646",1.8898648471268162,46.0,Good
-1,SMoA: Improving Multi-agent Large Language Models with Sparse Mixture-of-Agents,https://medium.com/@sulbha.jindal/smoa-improving-multi-agent-large-language-models-with-sparse-mixture-of-agents-paper-review-22adc69c15ca,Sulbha Jain,41,0,0,0.0,SMoA: Improving Multi-agent Large Language Models with Sparse Mixture-of-Agents,https://arxiv.org/pdf/2411.03284,Sulbha Jain,"# SMoA: Improving Multi-agent Large Language Models with Sparse Mixture-of-Agents — Paper Review
-
-Paper Link — https://arxiv.org/pdf/2411.03284
-
-This paper review discusses the evolution and challenges of multi-agent Large Language Model (LLM) systems, and introduces a new approach called Sparse Mixture-of-Agents (SMoA).
-
-Multi-agent LLM systems have been developed to allow different agents to focus on specific tasks, avoiding the need for extensive retraining. Early approaches used a layer-based structure, but this was limited by processing queries one agent at a time. The Mixture-of-Agents (MoA) method improved on this by allowing simultaneous processing of queries by multiple agents, with an aggregator combining their outputs.
-
-However, MoA faces two main challenges:
-
-1. High computational costs: While MoA is faster, it requires more overall computational power, which limits scalability and efficiency.
-
-2. Lack of diverse thinking: MoA agents tend to generate similar responses, reducing effectiveness in tasks requiring varied perspectives.
-
-To address these issues, the authors propose Sparse Mixture-of-Agents (SMoA), inspired by sparse mixture-of-experts (SMoE) designs. SMoA introduces two new agent types:
-
-1. Judge LLM: Selects high-quality responses for the next round.
-2. Moderator LLM: Controls information flow and decides when to end the process.
-
-This approach aims to reduce unnecessary data processing, improving efficiency and scalability. Additionally, SMoA assigns distinct roles to each agent, promoting diverse thinking and problem-solving approaches. This design is influenced by the expert diversity principle used in SMoE to balance workload among experts.
-
-By implementing these changes, SMoA seeks to overcome the limitations of previous multi-agent LLM systems and enhance their practical utility.
-
-The key contributions of the paper are:
-
-1. Identification of limitations in existing multi-agent LLM frameworks:
-The authors highlight two main issues with current approaches, particularly the Mixture-of-Agents (MoA) method:
-— High token computational cost, which limits scalability and efficiency
-— Lack of diverse thinking among LLM agents, leading to homogenized responses
-
-2. Proposal of a novel architecture — Sparse Mixture-of-Agents (SMoA):
-This new approach is designed to address the limitations of existing frameworks by:
-— Introducing sparsity in agent interactions through two new agent types: Judge LLM and Moderator LLM
-— Assigning distinct roles to each LLM agent to promote diverse thinking
-
-3. Experimental validation:
-The authors conducted extensive experiments across various tasks to demonstrate that:
-— SMoA achieves comparable performance to MoA
-— SMoA uses significantly fewer computational resources than MoA
-
-4. In-depth analysis and insights:
-The paper provides:
-— A comparison of different multi-agent methods
-— Detailed discussion of the advantages of SMoA over existing approaches
-
-These contributions aim to advance the field of multi-agent LLM systems by improving efficiency, scalability, and diversity of thinking while maintaining high performance levels. The SMoA architecture represents a significant step forward in addressing the challenges faced by current multi-agent LLM frameworks.",0.0,0.0,Bad
-2,Recurrent drafter for fast speculative decoding in Large Language Models,https://medium.com/@sulbha.jindal/recurrent-drafter-for-fast-speculative-decoding-in-large-language-models-paper-review-d77cfc09cae4,Sulbha Jain,41,1,0,0.0,Recurrent drafter for fast speculative decoding in Large Language Models,https://arxiv.org/pdf/2403.09919,Sulbha Jain,"# Recurrent drafter for fast speculative decoding in Large Language Models— Paper Review
+title_blog,url_blog,author_blog,author_followers,claps,comments,publisher_followers,title_paper,url_paper,publisher_blog,blog_full_text,engagement_score,normalized_engagement_score,engagement_level
+Recurrent drafter for fast speculative decoding in Large Language Models,https://medium.com/@sulbha.jindal/recurrent-drafter-for-fast-speculative-decoding-in-large-language-models-paper-review-d77cfc09cae4,Sulbha Jain,41,1,0,0.0,Recurrent drafter for fast speculative decoding in Large Language Models,https://arxiv.org/pdf/2403.09919,Sulbha Jain,"# Recurrent drafter for fast speculative decoding in Large Language Models— Paper Review
 
 Paper Link — https://arxiv.org/pdf/2403.09919
 
@@ -103,58 +25,7 @@ ReDrafter significantly speeds up Vicuna inference in MT-Bench, achieving up to 
 The method achieves remarkable performance improvements by using a lightweight RNN draft model conditioned on the LLM’s hidden states. By employing techniques like beam search and dynamic tree attention, ReDrafter can accelerate text generation up to 3.5x on high-performance GPUs and 2.3x on Apple Silicon chips. This breakthrough promises to enhance the responsiveness of AI-powered applications, making interactions with large language models more seamless and efficient
 
 Paper Link — https://arxiv.org/pdf/2403.09919",0.23708305259387408,6.0,Bad
-3,ChatGPT vs Bing … and the urgent need for Responsible AI,https://medium.com/@dattaraj/testing-large-language-models-1422d622e0c5,Dattaraj Rao,11,7,0,0.0,Adaptive Test Generation Using a Large Language Model,https://arxiv.org/pdf/2302.06527v2,Dattaraj Rao,"# ChatGPT vs Bing … and the urgent need for Responsible AI
-
-DISCLAIMER: Opinions in this article are my own and not those of my company.
-
-Large Language Models (LLM) like GPT3, ChatGPT and BARD are all the rage today. Everyone has an opinion about how these tools are good or bad for society and what they mean for the future of AI. Large language models generate natural language text based on a given input, such as a word, a sentence or a paragraph. They are trained on huge amounts of text data to learn patterns and probabilities of language. Some examples of large language models are GPT-3, Codex, BARD and the recent, LLaMA.
-
-Google received a lot of flak for its new model BARD getting a complex question wrong (slightly). When asked “What new discoveries from the James Webb Space Telescope can I tell my 9-year-old about?” — the chatbot provided three answers, out of which 2 were right and 1 was wrong. The wrong one was that the first “exoplanet” picture was taken by JWST, which was incorrect. So basically, the model had an incorrect fact stored in its knowledgebase. For large language models to be effective, we need a way to keep these facts updated or augment the facts with new knowledge.
-
-I tried asking 2 publicly available LLMs the following question:
-
-Who was the 14th person to walk the moon?
-
-This was by default a test designed to fail since as per NASA — only 12 humans have walked on the moon. Source: https://solarsystem.nasa.gov/news/890/who-has-walked-on-the-moon/
-
-Surprisingly both LLMs — ChatGPT and Bing Chat — gave different answers and pointed me to the 11th and 6th person to walk on the moon. Below are responses from ChatGPT and the newly launched Bing Chat.
-
-Both answers captured the context (moon walking) but got the exact answer wrong. Good part was that Bing did give a list of it’s references where I could verify the facts. This is a key Responsible AI principle that needs to be advocated around Transparency and Lineage.
-
-On digging deeper, I see that the britanica.com article that was probably used as reference for both answers says that there were 24 people to reach the surface of the moon but only 12 actually walked the surface rest waited in the craft and did actually go to the moon. So technically the answer provided is wrong but the Bing model did give me evidence and helped me reach a conclusion better. This transparency is highly valuable.
-
-How Many People Have Been to the Moon? | Britannica
-
-Testing LLMs will need a new strategy and serious consideration for Responsible AI. tenets like Accountability and Transparency become more important than ever in this context. Below is my article on internals of LLMs and how facts are encoded inside of them.
-
-3 Ways to Keep Stale Facts Fresh in Large Language Models | Unite.ai
-
-Specific to Responsible AI we also need to consider tenets like Accountability, Transparency, Reproducibility, Security and Privacy. For more details check out our point of view.
-
-Building a Responsible AI System | Persistent.com
-
-Testing large language models is a process of evaluating their performance, capabilities, limitations or risks on various tasks or domains. For example, one can test how well a large language model can generate code, answer questions, write essays or handle compositionally and inference.
-
-Let’s take an example of generating poetry using GPT3. There are different ways to test the effectiveness of GPT-3 for generating poems. One way is to use automated metrics that measure aspects such as syntactical correctness, lexical diversity, subject continuity and rhyme scheme. Another way is to use human evaluations that rate the poems based on criteria such as creativity, coherence, fluency and emotion. However, both methods have limitations and challenges. For example, automated metrics may not capture the aesthetic or semantic qualities of poems, while human evaluations may be subjective or inconsistent.
-
-To test the bias of essays generated by ChatGPT, one possible way is to use a bias detection tool that can analyze the language and content of the essays for any signs of prejudice, discrimination or unfairness towards certain groups or individuals. For example, you could use a tool like Perspective API which scores texts based on their toxicity, identity attack, profanity and other attributes. Then test cases need to be designed prompting the model to intentionally generate biased content by providing leading phrases as context. LLMs usually give priority to context and tune their output accordingly. Being able to filter out bias despite it being explicitly present in the prompt is a major test that needs to be conducted.
-
-A recent approach to mitigating bias in LLMs is to use constitutional rules. Constitution rules are a set of principles or guidelines that govern the use and development of large language models (LLMs). They can help mitigate bias in LLMs by ensuring that the data, methods and applications of LLMs are aligned with ethical values and social norms. For example, constitution rules can specify how to collect and curate diverse and representative data for training LLMs, how to monitor and evaluate the performance and impact of LLMs, how to protect the privacy and security of users and data sources, and how to promote transparency and accountability of LLM developers and users.
-
-References:
-
-(1) Bias in Large Language Models: GPT-2 as a Case Study. https://blogs.ischool.berkeley.edu/w231/2021/02/24/bias-in-large-language-models-gpt-2-as-a-case-study/
-
-(2) Adaptive Test Generation Using a Large Language Model. https://arxiv.org/abs/2302.06527v2
-
-(3) Meta unveils a new large language model that can run on a single GPU …. https://arstechnica.com/information-technology/2023/02/chatgpt-on-your-pc-meta-unveils-new-ai-model-that-can-run-on-a-single-gpu/
-
-(4) COS 597G: Understanding Large Language Models. https://www.cs.princeton.edu/courses/archive/fall22/cos597G/
-
-(5) Getting started with LangChain – A powerful tool for working with Large …. https://medium.com/@avra42/getting-started-with-langchain-a-powerful-tool-for-working-with-large-language-models-286419ba0842
-
-(6) Testing Large Language Models on Compositionality and Inference with …. https://aclanthology.org/2022.coling-1.359/",1.3394666680953076,32.0,Average
-4,How AI Is Changing the Way We Code,https://medium.com/towards-data-science/how-ai-is-changing-the-way-we-code-36ff30262e65,"Quentin Gallea, PhD",820,423,12,816000.0,From Mundane to Meaningful: AI's Influence on Work Dynamics -- evidence from ChatGPT and Stack Overflow,https://arxiv.org/pdf/2308.11302,TDS Archive,"# How AI Is Changing the Way We Code
+How AI Is Changing the Way We Code,https://medium.com/towards-data-science/how-ai-is-changing-the-way-we-code-36ff30262e65,"Quentin Gallea, PhD",820,423,12,816000.0,From Mundane to Meaningful: AI's Influence on Work Dynamics -- evidence from ChatGPT and Stack Overflow,https://arxiv.org/pdf/2308.11302,TDS Archive,"# How AI Is Changing the Way We Code
 
 ## Evidence from ChatGPT and Stack Overflow
 
@@ -272,7 +143,7 @@ All those long term adverse effects are not clear yet and require careful analys
 [2] https://www.nytimes.com/2023/03/29/technology/ai-artificial-intelligence-musk-risks.html
 
 [3] Bhat, Vasudev, et al. “Min (e) d your tags: Analysis of question response time in stackoverflow.” 2014 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining (ASONAM 2014). IEEE, (2014)",3.56104654683719,86.0,Excellent
-5,Data Centric AI — LLAVA,https://medium.com/@amansinghalml_33304/data-centric-ai-llava-0fd3c51dd359,Amansinghalml,12,7,0,0.0,Visual Instruction Tuning,https://arxiv.org/pdf/2304.08485,Amansinghalml,"# Data Centric AI — LLAVA
+Data Centric AI — LLAVA,https://medium.com/@amansinghalml_33304/data-centric-ai-llava-0fd3c51dd359,Amansinghalml,12,7,0,0.0,Visual Instruction Tuning,https://arxiv.org/pdf/2304.08485,Amansinghalml,"# Data Centric AI — LLAVA
 
 https://arxiv.org/abs/2304.08485
 
@@ -331,7 +202,7 @@ For the dataset filtration the filtering of C3M here is quite interesting and su
 What are some potential applications of LLaVa?
 
 Giving out recopies based on ingredients shown are particularly interesting as they can be extended to robotics with RL based approaches",1.3161665735625547,32.0,Average
-6,Building with Blocks: Modular RAG for Flexible and Powerful LLMs,https://medium.com/@yash9439/building-with-blocks-modular-rag-for-flexible-and-powerful-llms-3dba3ab1a7ce,Yash Bhaskar,952,2,0,0.0,Modular RAG: Transforming RAG Systems into LEGO-like Reconfigurable Frameworks,https://arxiv.org/pdf/2407.21059,Yash Bhaskar,"# Building with Blocks: Modular RAG for Flexible and Powerful LLMs
+Building with Blocks: Modular RAG for Flexible and Powerful LLMs,https://medium.com/@yash9439/building-with-blocks-modular-rag-for-flexible-and-powerful-llms-3dba3ab1a7ce,Yash Bhaskar,952,2,0,0.0,Modular RAG: Transforming RAG Systems into LEGO-like Reconfigurable Frameworks,https://arxiv.org/pdf/2407.21059,Yash Bhaskar,"# Building with Blocks: Modular RAG for Flexible and Powerful LLMs
 
 Paper Link : https://arxiv.org/pdf/2407.21059
 
@@ -366,7 +237,7 @@ The paper identifies several common RAG flow patterns that emerge from the combi
     * Tuning: Patterns for fine-tuning the retriever, generator, or both simultaneously.
 
 ## I would recommend to go through the Research Paper : https://arxiv.org/pdf/2407.21059",0.25585199540500264,6.0,Bad
-7,Advancements in Reinforcement Learning Research Using Soccer Data,https://medium.com/@keisuke198619/advancements-in-reinforcement-learning-research-using-soccer-data-131952d3e8a0,Keisuke Fujii,25,3,1,0.0,Action valuation of on- and off-ball soccer players based on multi-agent deep reinforcement learning,https://arxiv.org/pdf/2305.17886,Keisuke Fujii,"# Advancements in Reinforcement Learning Research Using Soccer Data
+Advancements in Reinforcement Learning Research Using Soccer Data,https://medium.com/@keisuke198619/advancements-in-reinforcement-learning-research-using-soccer-data-131952d3e8a0,Keisuke Fujii,25,3,1,0.0,Action valuation of on- and off-ball soccer players based on multi-agent deep reinforcement learning,https://arxiv.org/pdf/2305.17886,Keisuke Fujii,"# Advancements in Reinforcement Learning Research Using Soccer Data
 
 Last month, we published a paper based on deep reinforcement learning that simultaneously evaluates the actions of multiple soccer players.
 
@@ -387,7 +258,7 @@ As an example, consider the opening figure where player A has the ball and is pa
 We averaged these Q-values for individual players and examined their correlation with season scores for prominent Yokohama F. Marinos players (excluding goalkeepers) in the 2019 J1 League. A negative correlation was observed between the average Q-values and season scores. It’s challenging to determine an exact correlation due to players scoring zero or one goal, but the trend seemed to favor evaluating DF and MF players over FWs. This might be due to our parameter settings considering all passes and off-ball movements related to scoring. For more details, see the ‘Results’ section of our paper.
 
 This research, a first attempt with simple parameters, suggests that more accurate modeling could provide more precise evaluations. Additionally, another paper about creating a reinforcement learning-based simulator that generates actions similar to real soccer players was accepted at the ICAART 2024, an international conference on agent research. More details will be available soon, and I look forward to discussing this further.",1.0443553292697192,25.0,Average
-8,Beyond the Black Box: Inside the workings of LLMs,https://medium.com/@vishalmisra/beyond-the-black-box-inside-the-workings-of-llms-435bc82da7e9,Vishal Misra,358,74,0,0.0,Beyond the Black Box: A Statistical Model for LLM Reasoning and Inference,https://arxiv.org/pdf/2402.03175,Vishal Misra,"# Beyond the Black Box: Inside the workings of LLMs
+Beyond the Black Box: Inside the workings of LLMs,https://medium.com/@vishalmisra/beyond-the-black-box-inside-the-workings-of-llms-435bc82da7e9,Vishal Misra,358,74,0,0.0,Beyond the Black Box: A Statistical Model for LLM Reasoning and Inference,https://arxiv.org/pdf/2402.03175,Vishal Misra,"# Beyond the Black Box: Inside the workings of LLMs
 
 # Exploring the Inner Workings of Large Language Models: A Statistical Perspective
 
@@ -660,7 +531,7 @@ While our model is an abstraction of the complex processes within LLMs, we belie
 As research in this field progresses, we hope our work contributes to the development of more powerful, reliable, and interpretable AI language models. There’s still much to explore and validate, but we believe this statistical perspective opens up new avenues for investigation and improvement.
 
 We welcome feedback and further discussion on these ideas as we continue to explore the fascinating world of large language models.",2.6084454655312928,63.0,Good
-9,Model-Free Risk-Sensitive Reinforcement Learning,https://deepmindsafetyresearch.medium.com/model-free-risk-sensitive-reinforcement-learning-5a12ba5ce662,DeepMind Safety Research,3000,78,0,0.0,Model-Free Risk-Sensitive Reinforcement Learning,https://arxiv.org/pdf/2111.02907,DeepMind Safety Research,"# Model-Free Risk-Sensitive Reinforcement Learning
+Model-Free Risk-Sensitive Reinforcement Learning,https://deepmindsafetyresearch.medium.com/model-free-risk-sensitive-reinforcement-learning-5a12ba5ce662,DeepMind Safety Research,3000,78,0,0.0,Model-Free Risk-Sensitive Reinforcement Learning,https://arxiv.org/pdf/2111.02907,DeepMind Safety Research,"# Model-Free Risk-Sensitive Reinforcement Learning
 
 By the Safety Analysis Team: Grégoire Delétang, Jordi Grau-Moya, Markus Kunesch, Tim Genewein, Rob Brekelmans, Shane Legg, and Pedro A. Ortega
 
@@ -729,7 +600,7 @@ Through our work we show that incorporating risk-sensitivity into model free age
 [7] Gershman, S. J. (2015). Do learning rates adapt to the distribution of rewards? Psychonomic Bulletin & Review, 22(5):1320–1327.
 
 [8] Howard, R. A. and Matheson, J. E. (1972). Risk-sensitive Markov decision processes. Management science, 18(7):356–369.",2.3741464132615926,57.0,Good
-10,Learning to Generate Better than your LLM,https://medium.com/@dipendrakumarmisra/learning-to-generate-better-than-your-llm-41b9f0511ece,Dipendra Misra,17,6,0,0.0,Learning to Generate Better Than Your LLM,https://arxiv.org/pdf/2306.11816,Dipendra Misra,"# Learning to Generate Better than your LLM
+Learning to Generate Better than your LLM,https://medium.com/@dipendrakumarmisra/learning-to-generate-better-than-your-llm-41b9f0511ece,Dipendra Misra,17,6,0,0.0,Learning to Generate Better Than Your LLM,https://arxiv.org/pdf/2306.11816,Dipendra Misra,"# Learning to Generate Better than your LLM
 
 We recently put out a paper proposing a new way of fine-tuning a Large Language Model (LLM) using a hybrid imitation learning-reinforcement learning algorithm on arXiv (link is here). Co-authors are Jonathan D. Chang, Kiante Brantley, Rajkumar Ramamurthy, and Wen Sun. The algorithm is quite simple and effective and can be used as a drop-in replacement for PPO or supervised learning approaches. This post describes the core idea of this approach and its background.
 
@@ -762,7 +633,7 @@ In our paper, we apply the imitation learning framework to LLM and generalize it
 As mentioned earlier, our framework can be used to improve upon a given LLM say by learning a reward model using human preferences, as in RLHF, and then optimizing this reward using our framework. However, it can be also used in an imitation setting for more task-specific purposes. E.g., if you do not want to use the full power of a big and expensive LLM, and only care about a specific task (such as writing a summary or CV), then you can train a cheaper open-source LLM using the more expensive LLM as the reference alongside a reward model that better captures your task.
 
 Coming Soon: We plan to release the code in the next 2–3 months.",1.1235837363859345,27.0,Average
-11,Deep Laplacian-based Options for Temporally-Extended Exploration,https://medium.com/@marlos.cholodovskis/deep-laplacian-based-options-for-temporally-extended-exploration-7bf8dd469838,Marlos C. Machado,42,5,0,0.0,Deep Laplacian-based Options for Temporally-Extended Exploration,https://arxiv.org/pdf/2301.11181,Marlos C. Machado,"# Deep Laplacian-based Options for Temporally-Extended Exploration
+Deep Laplacian-based Options for Temporally-Extended Exploration,https://medium.com/@marlos.cholodovskis/deep-laplacian-based-options-for-temporally-extended-exploration-7bf8dd469838,Marlos C. Machado,42,5,0,0.0,Deep Laplacian-based Options for Temporally-Extended Exploration,https://arxiv.org/pdf/2301.11181,Marlos C. Machado,"# Deep Laplacian-based Options for Temporally-Extended Exploration
 
 At the end of the month, Martin Klissarov is going to be presenting our paper, Deep Laplacian-based Options for Temporally-Extended Exploration, at ICML in Hawaii. I really wish I could go to ICML this year but apparently I need to wait 500 days to get an interview at the US consulate to renew my visa ¯\_(ツ)_/¯
 
@@ -838,7 +709,7 @@ Hopefully I managed to make you at least a little excited about all of this. If 
 # Acknowledgments
 
 I want to thank Martin Klissarov and Craig Sherstan for their feedback on an earlier draft of this post.",0.8455948088925901,20.0,Average
-12,Safe Reinforcement Learning — Part II,https://becominghuman.ai/safe-reinforcement-learning-part-ii-d957600fe001,Haitham Bou Ammar,79,15,0,39000.0,"Sauté RL: Almost Surely Safe Reinforcement Learning
+Safe Reinforcement Learning — Part II,https://becominghuman.ai/safe-reinforcement-learning-part-ii-d957600fe001,Haitham Bou Ammar,79,15,0,39000.0,"Sauté RL: Almost Surely Safe Reinforcement Learning
 Using State Augmentation",https://arxiv.org/pdf/2202.06558,Becoming Human: Artificial Intelligence Magazine,"# Safe Reinforcement Learning — Part II
 
 In the previous post, we discussed constrained MDPs, which we used to deal with safe reinforcement learning problems. We then presented the Lagrangian multiplier formalism and demonstrated how such min-max issues could be solved. In this part, we will extend our analysis and present safety-augmented MDPs that arrive with favourable properties, e.g., plug-n-play on top of standard reinforcement learning solvers.
@@ -903,112 +774,7 @@ That’s it! I hope you find this helpful blog allowing you to do safe reinforce
 Above all, I would like to thank my co-authors on Saute RL, especially Aivar Sootla, who made this work even possible.
 
 The paper can be found here, and its code is here.",1.4508954120361255,35.0,Good
-13,Making LLMs Write Better and Better Code for Self-Driving Using LangProp,https://medium.com/data-science/making-llms-write-better-and-better-code-for-self-driving-using-langprop-99c6c3dc9508,Shu Ishida,128,209,1,816000.0,LangProp: A code optimization framework using Large Language Models applied to driving,https://arxiv.org/pdf/2401.10314,TDS Archive,"# Making LLMs Write Better and Better Code for Self-Driving Using LangProp
-
-## Analogy from classical machine learning: LLM (Large Language Model) = optimizer; code = parameters; LangProp = PyTorch Lightning
-
-You have probably used ChatGPT to write your emails, summarize documents, find out information, or help you debug your code. But can we take a step further and make ChatGPT drive a car?
-
-This was the question we wanted to answer when I started my internship at Wayve in March last year. Wayve is an autonomous driving startup in London, applying end-to-end learning to the challenging problem of urban driving. At the time, the company was just about to launch its LLM research team, which has since successfully developed LINGO-1 and LINGO-2. AutoGPT had just come out, and Voyager had not come out yet. And yet, the disruption caused by LLMs was palpable. The question was, how can we use this new technology to driving, a domain where language isn’t the main modality?
-
-In this blog post, I would like to give an overview of our paper LangProp, which we presented at the LLM Agents workshop at ICLR (the International Conference on Learning Representations) last month (May 2024).
-
-## GitHub - shuishida/LangProp
-
-### Contribute to shuishida/LangProp development by creating an account on GitHub.
-
-github.com
-
-## LangProp: A code optimization framework using Large Language Models applied to driving
-
-### We propose LangProp, a framework for iteratively optimizing code generated by large language models (LLMs), in both…
-
-arxiv.org
-
-# Motivation: Let’s apply ML to code writing, literally.
-
-The challenge of applying LLMs to driving comes in twofold: firstly, LLMs are, as the name says, very large models that require a lot of compute and can be slow to run, which makes them not-so-ideal for safety-critical real-time applications, such as autonomous driving; secondly, while language is good at high-level descriptions and serves as a sophisticated tool for logic, reasoning and planning, it doesn’t have the granularity and detail that is needed to describe observations and give spatial control actions.
-
-We realised, however, that we don’t necessarily have to use LLMs for inferring driving actions. What we could do instead is to make LLMs write the code for driving itself.
-
-If you have ever used ChatGPT to write code then this may sound like a terrible idea. The code that it writes seldom works out of the box, and often contains some errors. But what if we use LLMs to also detect bugs and automatically fix them, thereby iteratively improving the code quality?
-
-We took this idea a step further — instead of just fixing bugs, we designed a training framework that allows us to improve the code that the LLM generates towards an objective function of your choice. You can “train” your code to improve on a training dataset and try to reduce the losses. The code improvements can be quantified by running it on a validation dataset.
-
-Does this start to sound like Machine Learning? Because it essentially is! But are we fine-tuning the LLM? No — in fact, there is no neural network that is being fine-tuned. Instead, we are fine-tuning the code itself!
-
-In LangProp, the “code” is the parameters of the model, and the LLM is the optimizer that guides the parameters to improve in the direction that reduces the loss. Why is this cool? Because by applying this thinking, we can now automate optimization of software themselves in a data-driven way! With deep learning, we witnessed the power of data-driven approaches to solving hard-to-describe problems. But so far, the application domain of machine learning has been constrained to models parametrized by numeric values. Now, they can deal with systems described in code, too.
-
-If you have followed the history of Artificial Intelligence, this is an elegant way to unify the once popular approach of Symbolic AI with the more modern and successful Machine Learning approach. Symbolic AI was about having human experts describe a perfect model of the world in the form of logic and code. This had its limitations, as many complex tasks (e.g. object recognition) were beyond what human experts can feasibly describe with logic alone. Machine Learning, on the other hand, lets the data speak for itself and fits a model that best describes them in an automated way. This approach has been very successful in a wide range of disciplines, including pattern recognition, compression and function approximation. However, logic, reasoning, and long-term planning are fields where naively fitting a neural network on data often fails. This is because it is challenging to learn such complex operations in the modality of neural network parameter space. With LLMs and LangProp, we can finally apply the data-driven learning method to learn symbolic systems and automate their improvement.
-
-## Disclaimer
-
-Before we dive in further, I feel that some disclaimers are in order.
-    * This work on LangProp was conducted as an internship project at Wayve, and does not directly reflect the company’s Research & Development priorities or strategies. The purpose of this blog post is to describe LangProp as a paper, and everything in this blog post is written in the capacity of myself as an individual.
-    * While we demonstrated LangProp primarily for the case of autonomous driving, we also would like to stress its limitations, such as (a) it requires perfect observation of the environment, (b) we only made it work in a simulated environment and it is far from real-world deployment, (c) the generated driving code is not perfect nor sophisticated, and has many issues to be suitable for real-world deployment. We see LangProp as a research prototype that showcases the potential of LLMs applied to data-driven software optimization, not as a product for deployment.
-
-If you need further information on the limitations of LangProp, please check out the limitation section in the appendix of our paper.
-
-With that said, let’s take a look at how LangProp works!
-
-# How does LangProp work?
-
-## …we bring back Symbolic AI and Evolutionary Algorithms
-
-LangProp is designed like PyTorch Lightning — a LangProp module keeps track of the parameters (collection of scripts) that are trained and used for inference. In the training mode, a policy tracker keeps a record of the inputs, outputs, and any exceptions during the forward pass. The performance of the code is evaluated by an objective function. Based on the scores, the policy tracker re-ranks the scripts that currently exist, and passes the top k scripts to the LLM for refinement. At inference time, making a prediction is as simple as calling the code with the best score.
-
-The LangProp trainer takes a LangProp module to be trained, a training dataset, and a validation dataset. The dataset can be any iterable object, including a PyTorch Dataset object, which makes applying LangProp to existing tasks easier. Once the training is finished, we can save a checkpoint, which is the collection of refined code along with some statistics for ranking the code.
-
-The mechanism we use to choose the best code and improve them is similar to evolutionary algorithms, in which samples are initially chosen randomly, but then the ones that are high-performing are kept and perturbed to spawn a new generation of fitter samples.
-
-# Applying LangProp to driving
-
-Now let’s try using LangProp to drive in CARLA!
-
-CARLA is an open-sourced driving simulator used for autonomous driving research. There is a leaderboard challenge to benchmark your self-driving car agent. We tested LangProp on the standard routes and towns in this challenge.
-
-The good thing about formulating LangProp as a Machine Learning framework is that, now we can apply not just classic supervised learning but also imitation learning and reinforcement learning techniques.
-
-Specifically, we start our training on an offline dataset (driving demonstrations from an expert that contains state and action pairs), and then perform online rollouts. During online rollout, we employ DAgger [1], which is a dataset aggregation technique where samples collected by online rollouts are labelled with expert labels and aggregated with the current dataset.
-
-The input to the model (the code) is a Python dictionary of the state of the environment, including the poses and velocities of the vehicle and surrounding actors, and the distances to the traffic light / stop sign. The output is the driving action, which is the speed and steering angle at which the vehicle should drive.
-
-Whenever there is an infraction, e.g. ignoring a traffic light or stop sign, collision with another vehicle, pedestrian or cyclist, or being stationary for too long, there is a penality to the performance scores. The training objective is to maximize the combined score of imitation learning scores (how well can the agent match the ground truth action labels) and the reinforcement learning scores (reducing the infraction penalty).
-
-# LangProp driving agent in action
-
-Now watch the LangProp agent drive!
-
-We saw during training that, the initial driving policy that ChatGPT generates is very faulty. In particular, it often learns a naive policy that copies the previous velocity. This is a well-known phenomenon called causal confusion [2] in the field of imitation learning. If we just train with behavioral cloning on the offline dataset, such naive but simple policies obtain a high score compared to other more complex policies. This is why we need to use techniques such as DAgger and reinforcement learning to make sure that the policy performs in online rollout.
-
-After an iteration or two, the model stops copying the previous velocity and starts moving forward, but is either overly cautious (i.e. stops whenever there is an actor nearby, even if they are not in collision course), or reckless (driving forward until it collides into an actor). After a couple more iterations, the model learns to keep a distance from the vehicle in front and even calculates this distance dynamically based on the relative velocities of the vehicles. It also predicts whether other actors (e.g. J-walking pedestrians) are on collision course with the vehicle by looking at the velocity and position vectors.
-
-In the experiments in our paper, we show that the LangProp driving agent outperforms many of the previously implemented driving agents. We compare against both a PPO expert agent (Carla-Roach [3], TCP [4]) and researcher-implemented expert agents (TransFuser [5], InterFuser [6], TF++ [7]), and LangProp outperformed all expert agents except for TF++. All the expert agents were published after the GPT 3.5 training cutoff of September 2021, so this result is both surprising and exciting!
-
-# Closing remark
-
-Thank you for joining me on the ride! While in this work we primarily explored the application of LangProp to autonomous driving in CARLA, we also showed that LangProp can be easily applied to more general problems, such as the typical RL environment of CartPole-v1. LangProp works best in environments or problems where feedback on the performance can be obtained in the form of text or code, giving the model a richer semantic signal that is more than just numerical scores.
-
-There are endless possible applications of LangProp-like training to iteratively improve software based on data, and we are excited to see what will happen in this space!
-
-If you liked our work, please consider building on top of it and citing our paper:
-
-# References
-
-[1] Stéphane Ross, Geoffrey Gordon, and Drew Bagnell. “A reduction of imitation learning and structured prediction to no-regret online learning.” In Proceedings of the fourteenth international conference on artificial intelligence and statistics, JMLR Workshop and Conference Proceedings, 2011.
-
-[2] Pim De Haan, Dinesh Jayaraman, and Sergey Levine. “Causal confusion in imitation learning”. Advances in Neural Information Processing Systems, 2019.
-
-[3] Zhejun Zhang, Alexander Liniger, Dengxin Dai, Fisher Yu, and Luc Van Gool. “End-to-end urban driving by imitating a reinforcement learning coach.” In Proceedings of the IEEE/CVF international Conference on Computer Vision, pp. 15222–15232, 2021.
-
-[4] Penghao Wu, Xiaosong Jia, Li Chen, Junchi Yan, Hongyang Li, and Yu Qiao. “Trajectory-guided control prediction for end-to-end autonomous driving: A simple yet strong baseline.” Advances in Neural Information Processing Systems, 35:6119–6132, 2022.
-
-[5] Kashyap Chitta, Aditya Prakash, Bernhard Jaeger, Zehao Yu, Katrin Renz, and Andreas Geiger. “Transfuser: Imitation with transformer-based sensor fusion for autonomous driving.” IEEE Transactions on Pattern Analysis and Machine Intelligence, 2022.
-
-[6] Hao Shao, Letian Wang, Ruobing Chen, Hongsheng Li, and Yu Liu. “Safety-enhanced autonomous driving using interpretable sensor fusion transformer.” In Conference on Robot Learning, pp. 726–737. PMLR, 2023.
-
-[7] Jaeger, Bernhard, Kashyap Chitta, and Andreas Geiger. “Hidden biases of end-to-end driving models.” Proceedings of the IEEE/CVF International Conference on Computer Vision. 2023.",3.1272666145633194,75.0,Very Good
-14,An Empirical Approach to Explain Deep Reinforcement Learning in Portfolio Management Task,https://medium.com/@mg3844/an-empirical-approach-to-explain-deep-reinforcement-learning-in-portfolio-management-task-e65a42225d9d,MG,3,1,0,0.0,Explainable Deep Reinforcement Learning for Portfolio Management: An Empirical Approach,https://arxiv.org/pdf/2111.03995?source=post_page-----e65a42225d9d---------------------------------------#,MG,"# An Empirical Approach to Explain Deep Reinforcement Learning in Portfolio Management Task
+An Empirical Approach to Explain Deep Reinforcement Learning in Portfolio Management Task,https://medium.com/@mg3844/an-empirical-approach-to-explain-deep-reinforcement-learning-in-portfolio-management-task-e65a42225d9d,MG,3,1,0,0.0,Explainable Deep Reinforcement Learning for Portfolio Management: An Empirical Approach,https://arxiv.org/pdf/2111.03995?source=post_page-----e65a42225d9d---------------------------------------#,MG,"# An Empirical Approach to Explain Deep Reinforcement Learning in Portfolio Management Task
 
 This blog is a tutorial based on our paper: Explainable Deep Reinforcement Learning for Portfolio Management: An Empirical Approach, presented at 2nd ACM International Conference on AI in Finance.
 
@@ -1102,7 +868,7 @@ We find that:
 ### How to become a writer on Mlearning.ai
 
 medium.com",0.5431074262136628,13.0,Bad
-15,"Our paper, which explores whether people can perceive as if swarm robots were part of their body, has been accepted for CHI 2024",https://medium.com/sinicx/our-paper-which-explores-whether-people-can-perceive-as-if-swarm-robots-were-part-of-their-body-69bc10abfd64,Shigeo Yoshida,5,1,0,63.0,Swarm Body: Embodied Swarm Robots,https://arxiv.org/pdf/2402.15830,OMRON SINIC X,"# Our paper, which explores whether people can perceive as if swarm robots were part of their body, has been accepted for CHI 2024
+"Our paper, which explores whether people can perceive as if swarm robots were part of their body, has been accepted for CHI 2024",https://medium.com/sinicx/our-paper-which-explores-whether-people-can-perceive-as-if-swarm-robots-were-part-of-their-body-69bc10abfd64,Shigeo Yoshida,5,1,0,63.0,Swarm Body: Embodied Swarm Robots,https://arxiv.org/pdf/2402.15830,OMRON SINIC X,"# Our paper, which explores whether people can perceive as if swarm robots were part of their body, has been accepted for CHI 2024
 
 This is Shigeo Yoshida at OMRON SINIC X (OSX).
 
@@ -1159,7 +925,7 @@ In this study, we developed a framework and designed a robot to realize an embod
 # Call for Interns
 
 At OSX, we will continue fundamental research on natural language processing, computer vision, machine learning, robotics, and HCI. If you are interested in working with us as an intern, please visit our call for internship page.",0.4434462972498734,11.0,Bad
-16,Elastic Decision Transformer,https://medium.com/sinicx/elastic-decision-transformer-e8578b7d218f,Masashi Hamaya,14,2,0,63.0,Elastic Decision Transformer,https://arxiv.org/pdf/2307.02484,OMRON SINIC X,"# Elastic Decision Transformer
+Elastic Decision Transformer,https://medium.com/sinicx/elastic-decision-transformer-e8578b7d218f,Masashi Hamaya,14,2,0,63.0,Elastic Decision Transformer,https://arxiv.org/pdf/2307.02484,OMRON SINIC X,"# Elastic Decision Transformer
 
 We are thrilled to announce that our paper about offline reinforcement learning has been accepted to the Thirty-seventh Conference on Neural Information Processing Systems(NeurIPS 2023) (poster presentation, acceptance rate 26.1%)!
 
@@ -1198,7 +964,7 @@ The more detailed information is available from the video.
 # Call for interns
 
 We are actively hiring interns who are interested in machine learning and robotics. If you want to apply for our internship, please visit our website!",0.553012163928578,13.0,Bad
-17,LeDeepChef 👨🏻‍🍳 — Deep Reinforcement Learning Agent for Families of Text-based Games,https://medium.com/@leonard.adolphs.95/ledeepchef-deep-reinforcement-learning-agent-for-families-of-text-based-games-a228214378f9,Leonard Adolphs,7,93,0,0.0,LeDeepChef: Deep Reinforcement Learning Agent for Families of Text-Based Games,https://arxiv.org/pdf/1909.01646,Leonard Adolphs,"# LeDeepChef 👨🏻‍🍳 — Deep Reinforcement Learning Agent for Families of Text-based Games
+LeDeepChef 👨🏻‍🍳 — Deep Reinforcement Learning Agent for Families of Text-based Games,https://medium.com/@leonard.adolphs.95/ledeepchef-deep-reinforcement-learning-agent-for-families-of-text-based-games-a228214378f9,Leonard Adolphs,7,93,0,0.0,LeDeepChef: Deep Reinforcement Learning Agent for Families of Text-Based Games,https://arxiv.org/pdf/1909.01646,Leonard Adolphs,"# LeDeepChef 👨🏻‍🍳 — Deep Reinforcement Learning Agent for Families of Text-based Games
 
 # TL;DR
 
@@ -1287,7 +1053,7 @@ In my opinion, Microsoft’s TextWorld challenge was a massive success as it mad
 Bringing RL methods to NLP tasks holds great promises for the future, and the development of agents that generalize to unfamiliar environments is an essential step on this path.
 
 With our agent, we showed how to cope with huge action-spaces and designed a model that learns to generalize to never-before-seen games of the same family. To achieve this result, we designed a model that effectively ranks a set of commands based on the context and context-derived features. By incorporating ideas from hierarchical RL, we signiﬁcantly reduced the size of the action-space and were able to train the agent through an actor-critic approach.",3.8226134008258232,92.0,Excellent
-18,LLM Agents can Autonomously Exploit Zero-day Vulnerabilities,https://medium.com/@danieldkang/llm-agents-can-autonomously-exploit-zero-day-vulnerabilities-e4664d7c598e,Daniel Kang,407,72,1,0.0,Teams of LLM Agents can Exploit Zero-Day Vulnerabilities,https://arxiv.org/pdf/2406.01637,Daniel Kang,"# LLM Agents can Autonomously Exploit Zero-day Vulnerabilities
+LLM Agents can Autonomously Exploit Zero-day Vulnerabilities,https://medium.com/@danieldkang/llm-agents-can-autonomously-exploit-zero-day-vulnerabilities-e4664d7c598e,Daniel Kang,407,72,1,0.0,Teams of LLM Agents can Exploit Zero-Day Vulnerabilities,https://arxiv.org/pdf/2406.01637,Daniel Kang,"# LLM Agents can Autonomously Exploit Zero-day Vulnerabilities
 
 Agents based on large language models (LLMs) have become increasingly capable and can now solve tasks as complex as resolving real-world GitHub issues. As these AI agents increase in capabilities, so does their potential for malicious applications, such as cybersecurity hacking. In fact, work from our lab shows that AI agents can exploit real-world vulnerabilities when given a description of the vulnerability (the one-day setting). However, these agents perform poorly in the zero-day setting, where the vulnerability isn’t known to the agent. Our work left open the question: is it possible for more complex agents to exploit zero-day vulnerabilities?
 
@@ -1356,7 +1122,7 @@ As we’ve shown over the past few months, AI agents are highly capable of perfo
 As mentioned, our results show that testing LLMs in the chatbot setting, as the original GPT-4 safety assessment did, is insufficient for understanding LLM capabilities. We hope that future work focuses on comprehensive safety evaluations for frontier models.
 
 Finally, please read our paper for further details! And reach out to me if you are interested in deploying our agents.",2.6009526752679824,63.0,Good
-19,"Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements",https://blog.gopenai.com/towards-automated-penetration-testing-introducing-llm-benchmark-analysis-and-improvements-c7d06a2bf963,Isamu Isozaki,443,17,1,2300.0,"Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements",https://arxiv.org/pdf/2410.17141,GoPenAI,"# Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements
+"Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements",https://blog.gopenai.com/towards-automated-penetration-testing-introducing-llm-benchmark-analysis-and-improvements-c7d06a2bf963,Isamu Isozaki,443,17,1,2300.0,"Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements",https://arxiv.org/pdf/2410.17141,GoPenAI,"# Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements
 
 Hi! This will be a blog on our paper “Towards Automated Penetration Testing: Introducing LLM Benchmark, Analysis, and Improvements”. For the background, I have talked about it here so if you already read it feel free to skip the background straight to the Benchmark section!
 
@@ -1587,7 +1353,7 @@ We plan to see if reinforcement learning allows LLMs to get better at pentesting
 ## Note
 
 I think recently there were other cool works published like Cybench and Autopentest benchmark which I plan to add here once I go through them in more depth",1.4520148190943885,35.0,Good
-20,Concept Network Reinforcement Learning for Flexible Dexterous Manipulation,https://medium.com/@BonsaiAI/concept-network-reinforcement-learning-for-flexible-dexterous-manipulation-47bf459b19b9,Bonsai,1800,25,0,0.0,Deep Reinforcement Learning for Dexterous Manipulation with Concept Networks,https://arxiv.org/pdf/1709.06977,Bonsai,"# Concept Network Reinforcement Learning for Flexible Dexterous Manipulation
+Concept Network Reinforcement Learning for Flexible Dexterous Manipulation,https://medium.com/@BonsaiAI/concept-network-reinforcement-learning-for-flexible-dexterous-manipulation-47bf459b19b9,Bonsai,1800,25,0,0.0,Deep Reinforcement Learning for Dexterous Manipulation with Concept Networks,https://arxiv.org/pdf/1709.06977,Bonsai,"# Concept Network Reinforcement Learning for Flexible Dexterous Manipulation
 
 By: Marcos Campos & Victor Shnayder
 
@@ -1708,7 +1474,7 @@ If working on a platform to support flexible, usable reinforcement learning and 
 [4] Mnih, V. et al. Playing Atari with Deep Reinforcement Learning. NIPS Deep Learning Workshop, 2013. arXiv:1312.5602v1.
 
 [5] Sutton, R. et al. Between MDPs and semi-MDPs: A framework for temporal abstraction in reinforcement learning. Artificial Intelligence 112 , 1999: 181–211.",1.4667374693038036,35.0,Good
-21,New paper: The Incentives that Shape Behaviour,https://medium.com/data-science/new-paper-the-incentives-that-shape-behaviour-d6d8bb77d2e4,Ryan Carey,43,239,1,816000.0,The Incentives that Shape Behaviour,https://arxiv.org/pdf/2001.07118,TDS Archive,"## AI ALIGNMENT AND SAFETY
+New paper: The Incentives that Shape Behaviour,https://medium.com/data-science/new-paper-the-incentives-that-shape-behaviour-d6d8bb77d2e4,Ryan Carey,43,239,1,816000.0,The Incentives that Shape Behaviour,https://arxiv.org/pdf/2001.07118,TDS Archive,"## AI ALIGNMENT AND SAFETY
 
 # New paper: The Incentives that Shape Behaviour
 
@@ -1771,7 +1537,7 @@ In the long-term, our aspiration is that when researchers anticipate possible sa
 This theory is not completed yet, as it is currently restricted to the single-agent setting. We are working on extending it to a multi-decision case, and ultimately, we would like it to deal with multiple agents. The paper is available at:
 
 R Carey, E Langlois, T Everitt & S Legg. The Incentives that Shape Behaviour (2020), SafeAI@AAAI.",3.4957539976785923,84.0,Excellent
-22,Improving Pinterest Search Relevance Using Large Language Models,https://medium.com/pinterest-engineering/improving-pinterest-search-relevance-using-large-language-models-4cd938d4e892,Pinterest Engineering,58000,32,0,15700.0,Improving Pinterest Search Relevance Using Large Language Models,https://arxiv.org/pdf/2410.17152,Pinterest Engineering Blog,"# Improving Pinterest Search Relevance Using Large Language Models
+Improving Pinterest Search Relevance Using Large Language Models,https://medium.com/pinterest-engineering/improving-pinterest-search-relevance-using-large-language-models-4cd938d4e892,Pinterest Engineering,58000,32,0,15700.0,Improving Pinterest Search Relevance Using Large Language Models,https://arxiv.org/pdf/2410.17152,Pinterest Engineering Blog,"# Improving Pinterest Search Relevance Using Large Language Models
 
 Han Wang | Machine Learning Engineer, Relevance & Query Understanding; Mukuntha Narayanan | Machine Learning Engineer, Relevance & Query Understanding; Onur Gungor | (former) Machine Learning Engineer, Relevance & Query Understanding; Jinfeng Rao | Machine Learning Engineer, Pinner Discovery
 
@@ -1864,7 +1630,7 @@ To further enhance the efficacy of our relevance system, future work will explor
 # Acknowledgement
     * Ads Relevance: Helen Xu, Rakesh Chalasani
     * Search Leadership: Krishna Kamath, Kurchi Subhra Hazra",1.3513009297295486,33.0,Average
-23,BYOG (Build Your Own Guardrails) with Synthetic Data,https://medium.com/dsaid-govtech/byog-build-your-own-guardrails-with-synthetic-data-f38f9da2deae,Shing Yee,16,136,0,894.0,A Flexible Large Language Models Guardrail Development Methodology Applied to Off-Topic Prompt Detection,https://arxiv.org/pdf/2411.12946,"AI Practice and Data Engineering Practice, GovTech","# BYOG (Build Your Own Guardrails) with Synthetic Data
+BYOG (Build Your Own Guardrails) with Synthetic Data,https://medium.com/dsaid-govtech/byog-build-your-own-guardrails-with-synthetic-data-f38f9da2deae,Shing Yee,16,136,0,894.0,A Flexible Large Language Models Guardrail Development Methodology Applied to Off-Topic Prompt Detection,https://arxiv.org/pdf/2411.12946,"AI Practice and Data Engineering Practice, GovTech","# BYOG (Build Your Own Guardrails) with Synthetic Data
 
 By Chan Shing Yee and Gabriel Chua
 
@@ -1938,7 +1704,7 @@ By combining problem analysis, synthetic data generation, and structured output 
 For further details about how we generated synthetic data, please refer to this article. You may also find the open-source dataset here.
 
 In Part 2, we will dive deeper into how we used this synthetic dataset to train our off-topic detection model and share the results of that process.",3.890789153144719,94.0,Excellent
-24,Open-sourcing an Off-Topic Prompt Guardrail,https://medium.com/dsaid-govtech/open-sourcing-an-off-topic-prompt-guardrail-fde422a66152,Shing Yee,16,113,0,894.0,A Flexible Large Language Models Guardrail Development Methodology Applied to Off-Topic Prompt Detection,https://arxiv.org/pdf/2411.12946,"AI Practice and Data Engineering Practice, GovTech","# Open-sourcing an Off-Topic Prompt Guardrail
+Open-sourcing an Off-Topic Prompt Guardrail,https://medium.com/dsaid-govtech/open-sourcing-an-off-topic-prompt-guardrail-fde422a66152,Shing Yee,16,113,0,894.0,A Flexible Large Language Models Guardrail Development Methodology Applied to Off-Topic Prompt Detection,https://arxiv.org/pdf/2411.12946,"AI Practice and Data Engineering Practice, GovTech","# Open-sourcing an Off-Topic Prompt Guardrail
 
 By Chan Shing Yee and Gabriel Chua
 
@@ -2015,7 +1781,7 @@ Despite these limitations, our approach provides a solid foundation for building
 # Conclusion
 
 In this article, we discussed how we built and trained a model to detect off-topic prompts using synthetic data. We explored different modelling approaches and evaluated their performance across several key factors, such as precision, prompt length, and calibration. The results showed that our fine-tuned models outperformed traditional methods in both accuracy and speed, making them a reliable tool for ensuring that LLMs respond only to relevant queries. Further details can be found in our paper.",3.7096716242612433,90.0,Excellent
-25,The Generative Style Transformer,https://medium.com/agara-labs/the-generative-style-transformer-3564bce04d04,Akhilesh Sudhakar,14,56,1,77.0,"Transforming Delete, Retrieve, Generate Approach for Controlled Text Style Transfer",https://arxiv.org/pdf/1908.09368,Agara,"# The Generative Style Transformer
+The Generative Style Transformer,https://medium.com/agara-labs/the-generative-style-transformer-3564bce04d04,Akhilesh Sudhakar,14,56,1,77.0,"Transforming Delete, Retrieve, Generate Approach for Controlled Text Style Transfer",https://arxiv.org/pdf/1908.09368,Agara,"# The Generative Style Transformer
 
 This post explains our paper on style transfer, “Transforming Delete, Retrieve, Generate Approach for Controlled Text Style Transfer” (presented at EMNLP 2019) in a more accessible manner.
 
@@ -2112,7 +1878,7 @@ To improve the quality of style transfer itself, we’re working on using reinfo
 More updates on all of the above will follow in our future blog posts.
 
 Do check out our paper for more detailed explanations of our work!",3.1260952855202984,75.0,Very Good
-26,Scaling Training Data Attribution,https://medium.com/people-ai-research/scaling-training-data-attribution-f7d1eddd85da,Tyler A. Chang,3,3,0,3000.0,Scalable Influence and Fact Tracing for Large Language Model Pretraining,https://arxiv.org/pdf/2410.17413,People + AI Research Blog,"Featured
+Scaling Training Data Attribution,https://medium.com/people-ai-research/scaling-training-data-attribution-f7d1eddd85da,Tyler A. Chang,3,3,0,3000.0,Scalable Influence and Fact Tracing for Large Language Model Pretraining,https://arxiv.org/pdf/2410.17413,People + AI Research Blog,"Featured
 
 # Scaling Training Data Attribution
 
@@ -2157,7 +1923,7 @@ Our research pushes the frontier of scaling TDA closer to full pretraining data 
 ## Credits & Acknowledgements
 
 Written by Tyler A. Chang, with Dheeraj Rajagopal, Tolga Bolukbasi, Lucas Dixon, and Ian Tenney. We thank Mahima Pushkarna and Jonathan Caton for help editing this post, and the rest of the PAIR team for wonderful support.",1.1493420517114166,28.0,Average
-27,Rethinking Symbolic Regression Datasets and Benchmarks for Scientific Discovery (DMLR),https://medium.com/sinicx/rethinking-symbolic-regression-datasets-and-benchmarks-for-scientific-discovery-dmlr-b71639de3b03,Yoshitomo Matsubara,16,11,0,63.0,Rethinking Symbolic Regression Datasets and Benchmarks for Scientific Discovery,https://arxiv.org/pdf/2206.10540,OMRON SINIC X,"# Rethinking Symbolic Regression Datasets and Benchmarks for Scientific Discovery (DMLR)
+Rethinking Symbolic Regression Datasets and Benchmarks for Scientific Discovery (DMLR),https://medium.com/sinicx/rethinking-symbolic-regression-datasets-and-benchmarks-for-scientific-discovery-dmlr-b71639de3b03,Yoshitomo Matsubara,16,11,0,63.0,Rethinking Symbolic Regression Datasets and Benchmarks for Scientific Discovery,https://arxiv.org/pdf/2206.10540,OMRON SINIC X,"# Rethinking Symbolic Regression Datasets and Benchmarks for Scientific Discovery (DMLR)
 
 We are pleased to announce that our paper on symbolic regression datasets and benchmarks for scientific discovery was accepted at the Journal of Data-centric Machine Learning Research (DMLR), a new sister journal of the JMLR.
 
@@ -2214,7 +1980,7 @@ Datasets:
 # Relevant Studies at OMRON SINIC X
     * Florian Lalande, Yoshitomo Matsubara, Naoya Chiba, Tatsunori Taniai, Ryo Igarashi, Yoshitaka Ushiku: “A Transformer Model for Symbolic Regression towards Scientific Discovery” @ NeurIPS 2023 AI for Science Workshop [Medium]
     * Yoshitomo Matsubara, Naoya Chiba, Ryo Igarashi, Yoshitaka Ushiku: “SRSD: Rethinking Datasets of Symbolic Regression for Scientific Discovery” @ NeurIPS 2022 AI for Science Workshop",1.585599549525837,38.0,Good
-28,Hybrid Preferences: Learning to Route Instances for Human vs. AI Feedback,https://medium.com/ai2-blog/hybrid-preferences-learning-to-route-instances-for-human-vs-ai-feedback-6bed4b68c0a2,Lj Miranda,1,2,0,1600.0,Hybrid Preferences: Learning to Route Instances for Human vs. AI Feedback,https://arxiv.org/pdf/2410.19133,Ai2 Blog,"# Hybrid Preferences: Learning to Route Instances for Human vs. AI Feedback
+Hybrid Preferences: Learning to Route Instances for Human vs. AI Feedback,https://medium.com/ai2-blog/hybrid-preferences-learning-to-route-instances-for-human-vs-ai-feedback-6bed4b68c0a2,Lj Miranda,1,2,0,1600.0,Hybrid Preferences: Learning to Route Instances for Human vs. AI Feedback,https://arxiv.org/pdf/2410.19133,Ai2 Blog,"# Hybrid Preferences: Learning to Route Instances for Human vs. AI Feedback
 
 Much of the recent advancements in large language models (LLMs) have been powered by human feedback, usually in the form of preference datasets. Think of preferences as a judgment between two (or more) model outputs given a user prompt. Say for example you’re deciding between two ad copies for a sourdough business you’re starting–which one do you prefer?
 
@@ -2248,7 +2014,7 @@ Overall, our work shows that we can obtain high-quality data at lower costs by c
     * Paper: https://arxiv.org/abs/2410.19133
     * Code: https://github.com/allenai/hybrid-preferences
     * MultiPref dataset: https://huggingface.co/datasets/allenai/multipref",1.3557690498640094,33.0,Average
-29,Avoiding Unsafe States in 3D Environments using Human Feedback,https://deepmindsafetyresearch.medium.com/avoiding-unsafe-states-in-3d-environments-using-human-feedback-5869ed9fb94c,DeepMind Safety Research,3000,184,0,0.0,Safe Deep RL in 3D Environments using Human Feedback,https://arxiv.org/pdf/2201.08102,DeepMind Safety Research,"# Avoiding Unsafe States in 3D Environments using Human Feedback
+Avoiding Unsafe States in 3D Environments using Human Feedback,https://deepmindsafetyresearch.medium.com/avoiding-unsafe-states-in-3d-environments-using-human-feedback-5869ed9fb94c,DeepMind Safety Research,3000,184,0,0.0,Safe Deep RL in 3D Environments using Human Feedback,https://arxiv.org/pdf/2201.08102,DeepMind Safety Research,"# Avoiding Unsafe States in 3D Environments using Human Feedback
 
 By Matthew Rahtz, Vikrant Varma, Ramana Kumar, Zachary Kenton, Shane Legg, and Jan Leike.
 
@@ -2292,7 +2058,7 @@ First, this research shows that even in realistic environments, it is possible t
 Second, this work establishes ReQueST as a plausible solution to human-guided safe exploration. We believe this is the particular brand of safe exploration likely to be representative of real-world deployments of AGI: where the constraints of safe behaviour are fuzzy, and therefore must be learned from humans because they can’t be specified programmatically. In particular, ReQueST shines in situations where any safety violations at all may incur great cost (e.g. harm to humans).
 
 Third, we have shown the exciting promise of neural environment simulators to make RL more safe. We believe such simulators warrant more attention, given that a) they can be learned from data (rather than handcrafted by experts), and b) the ability to differentiate through them in order to discover situations of interest (as we do in this work during trajectory optimization). Given current progress in this area, we are excited to see what the future holds.",3.177251474891446,77.0,Very Good
-30,Alignment of Language Agents,https://deepmindsafetyresearch.medium.com/alignment-of-language-agents-9fbc7dd52c6c,DeepMind Safety Research,3000,94,0,0.0,Alignment of Language Agents,https://arxiv.org/pdf/2103.14659,DeepMind Safety Research,"# Alignment of Language Agents
+Alignment of Language Agents,https://deepmindsafetyresearch.medium.com/alignment-of-language-agents-9fbc7dd52c6c,DeepMind Safety Research,3000,94,0,0.0,Alignment of Language Agents,https://arxiv.org/pdf/2103.14659,DeepMind Safety Research,"# Alignment of Language Agents
 
 By Zachary Kenton, Tom Everitt, Laura Weidinger, Iason Gabriel, Vladimir Mikulik and Geoffrey Irving
 
@@ -2312,7 +2078,7 @@ We build on the philosophy and psychology literature to offer specific definitio
 Deception and manipulation are already issues in today’s language agents. For example, in an investigation into negotiating language agents, it was found that the AI agent learnt to deceive humans by feigning interest in an item that it didn’t actually value, so that it could compromise later by conceding it.
 
 Categorising the forms of misspecification and the types of behavioural issues that can arise from them offers a framework upon which to structure our research into the safety and alignment of AI systems. We believe this kind of research will help to mitigate potential harms in the context of language agents in the future. Check out our paper for more details and discussion of these problems, and possible approaches.",2.544759708925614,61.0,Good
-31,"LegalBench-RAG, the First Open-Source Retrieval Benchmark for the Legal Domain",https://medium.com/@ghitahouiralami/legalbench-rag-the-first-open-source-retrieval-benchmark-for-the-legal-domain-bbacc015d109,Ghita Houir Alami,10,50,0,0.0,LegalBench-RAG: A Benchmark for Retrieval-Augmented Generation in the Legal Domain,https://arxiv.org/pdf/2408.10343,Ghita Houir Alami,"# LegalBench-RAG, the First Open-Source Retrieval Benchmark for the Legal Domain
+"LegalBench-RAG, the First Open-Source Retrieval Benchmark for the Legal Domain",https://medium.com/@ghitahouiralami/legalbench-rag-the-first-open-source-retrieval-benchmark-for-the-legal-domain-bbacc015d109,Ghita Houir Alami,10,50,0,0.0,LegalBench-RAG: A Benchmark for Retrieval-Augmented Generation in the Legal Domain,https://arxiv.org/pdf/2408.10343,Ghita Houir Alami,"# LegalBench-RAG, the First Open-Source Retrieval Benchmark for the Legal Domain
 
 As the legal industry rapidly embraces artificial intelligence (AI) technologies, a critical gap has emerged in the ecosystem — the lack of a challenging, open-source, dedicated benchmark for evaluating the retrieval component of Retrieval-Augmented Generation (RAG) systems in the legal domain.
 
@@ -2359,7 +2125,7 @@ The poor performance of the general-purpose Cohere Reranker across the datasets 
 # Conclusion
 
 LegalBench-RAG introduces a new standard for comparing the quality of the retrieval component of RAG systems in the legal domain. The dataset and code are publicly available here: https://github.com/zeroentropy-cc/legalbenchrag",3.0842750410469604,74.0,Very Good
-32,Editing Personality for Large Language Models,https://medium.com/@jack16900/editing-personality-for-large-language-models-6bfdd278d01f,NLPer,41,6,0,0.0,Editing Personality For Large Language Models,https://arxiv.org/pdf/2310.02168,NLPer,"# Editing Personality for Large Language Models
+Editing Personality for Large Language Models,https://medium.com/@jack16900/editing-personality-for-large-language-models-6bfdd278d01f,NLPer,41,6,0,0.0,Editing Personality For Large Language Models,https://arxiv.org/pdf/2310.02168,NLPer,"# Editing Personality for Large Language Models
 
 Paper URL: https://arxiv.org/pdf/2310.02168.pdf
 
@@ -2423,7 +2189,7 @@ In conclusion, our research sets the stage for future explorations in model pers
 [2] Memory-Based Model Editing at Scale
 
 [3] Can We Edit Factual Knowledge by In-Context Learning?",0.9575395096189927,23.0,Average
-33,Learning to Balance the Safety-Efficiency Trade-offs in Interactive Crowd-aware Robot Navigation,https://medium.com/sinicx/l2b-learning-to-balance-the-safety-efficiency-trade-offs-in-interactive-crowd-aware-robot-ecc15fddb121,Mai Nishimura,6,4,0,63.0,L2B: Learning to Balance the Safety-Efficiency Trade-off in Interactive Crowd-aware Robot Navigation,https://arxiv.org/pdf/2003.09207,OMRON SINIC X,"# Learning to Balance the Safety-Efficiency Trade-offs in Interactive Crowd-aware Robot Navigation
+Learning to Balance the Safety-Efficiency Trade-offs in Interactive Crowd-aware Robot Navigation,https://medium.com/sinicx/l2b-learning-to-balance-the-safety-efficiency-trade-offs-in-interactive-crowd-aware-robot-ecc15fddb121,Mai Nishimura,6,4,0,63.0,L2B: Learning to Balance the Safety-Efficiency Trade-off in Interactive Crowd-aware Robot Navigation,https://arxiv.org/pdf/2003.09207,OMRON SINIC X,"# Learning to Balance the Safety-Efficiency Trade-offs in Interactive Crowd-aware Robot Navigation
 
 Our project on interactive navigation in highly congested environments has been accepted to the International Conference on Intelligent Robot and Systems (IROS) 2020. 🌈
 
@@ -2464,7 +2230,7 @@ Mai Nishimura and Ryo Yonetani, L2B: Learning to Balance the Safety-Efficiency T
 Relevant Project:
 
 Hiroaki Minoura, Ryo Yonetani, Mai Nishimura, and Yoshitaka Ushiku, Crowd Density Forecasting by Modeling Patch-based Dynamics [arXiv]",1.1169218665712344,27.0,Average
-34,VBART: the first Turkish LLM,https://medium.com/vngrs/vbart-the-first-turkish-llm-6f0f6f227ed4,Melikşah Türker,41,72,3,52.0,VBART: The Turkish LLM,https://arxiv.org/pdf/2403.01308,VNGRS,"# VBART: the first Turkish LLM
+VBART: the first Turkish LLM,https://medium.com/vngrs/vbart-the-first-turkish-llm-6f0f6f227ed4,Melikşah Türker,41,72,3,52.0,VBART: The Turkish LLM,https://arxiv.org/pdf/2403.01308,VNGRS,"# VBART: the first Turkish LLM
 
 2 years ago, I was working on a customer project for text summarization and paraphrasing for Turkish. Going through open-source models and papers, I have realized that, in fact, there was no pre-trained text generation model in Turkish. I was specifically looking for a sequence-to-sequence model. I’ve found BART, T5 and PEGASUS models, all of which were pre-trained for conditional text generation tasks in English. I’ve also found the multilingual versions of the first two, mBART and mT5. They were pre-trained in multilingual settings and, therefore, support Turkish. However, they were exposed to very little amount of Turkish since the majority of training time and learning capacity of the models were spent on other languages. Consequently, even though fine-tuning these models worked most of the time, it was not optimal.
 
@@ -2532,7 +2298,7 @@ Although OpenAI models such as ChatGPT and GPT-4 are good at zero-shot, that is,
 Paper
 
 Lastly, we have written a paper that elaborates on this work. You can read it here.",3.121037011326307,75.0,Very Good
-35,Interactive Visual Search,https://medium.com/ebaytech/interactive-visual-search-51f09174a53e,Robinson Piramuthu,24,14,0,352.0,Give me a hint! Navigating Image Databases using Human-in-the-loop Feedback,https://arxiv.org/pdf/1809.08714,eBayTech,"# Interactive Visual Search
+Interactive Visual Search,https://medium.com/ebaytech/interactive-visual-search-51f09174a53e,Robinson Piramuthu,24,14,0,352.0,Give me a hint! Navigating Image Databases using Human-in-the-loop Feedback,https://arxiv.org/pdf/1809.08714,eBayTech,"# Interactive Visual Search
 
 By M. Hadi Kiapour, Robinson Piramuthu and Shuai (Kyle) Zheng
 
@@ -2600,7 +2366,7 @@ Interactive Visual Search from eBay Newsroom on Vimeo.
 This is collaborative work with Bryan Plummer who was our summer intern in 2017 and the primary author of our paper.
 
 Originally published at www.ebayinc.com on January 22, 2019.",1.6766233953495924,40.0,Good
-36,Adaptive Distillation for Decentralized Learning from Heterogeneous Clients (ICPR’20),https://medium.com/sinicx/adaptive-distillation-for-decentralized-learning-from-heterogeneous-clients-icpr20-8c17f8f27eb2,Ryo Yonetani,28,2,0,63.0,Adaptive Distillation for Decentralized Learning from Heterogeneous Clients,https://arxiv.org/pdf/2008.07948,OMRON SINIC X,"# Adaptive Distillation for Decentralized Learning from Heterogeneous Clients (ICPR’20)
+Adaptive Distillation for Decentralized Learning from Heterogeneous Clients (ICPR’20),https://medium.com/sinicx/adaptive-distillation-for-decentralized-learning-from-heterogeneous-clients-icpr20-8c17f8f27eb2,Ryo Yonetani,28,2,0,63.0,Adaptive Distillation for Decentralized Learning from Heterogeneous Clients,https://arxiv.org/pdf/2008.07948,OMRON SINIC X,"# Adaptive Distillation for Decentralized Learning from Heterogeneous Clients (ICPR’20)
 
 We are pleased to announce that our recent work on federated learning for heterogeneous clients will be presented at the International Conference on Pattern Recognition (ICPR) 2020. Our talk is scheduled in poster session T1.13 (2 pm — 3 pm GMT on Jan. 15).
 
@@ -2636,7 +2402,7 @@ At OMRON SINIC X, we will continue fundamental research on computer vision, mach
 
 Relevant posts:
     * MULTIPOLAR: Multi-Source Policy Aggregation for Transfer Reinforcement Learning between Diverse Environmental Dynamics",0.46618544674022566,11.0,Bad
-37,An analytical diabolo model for robotic learning and control,https://medium.com/sinicx/an-analytical-diabolo-model-for-robotic-learning-and-control-c8d8a8384d6d,Felix von Drigalski,15,6,0,63.0,An analytical diabolo model for robotic learning and control,https://arxiv.org/pdf/2011.09068,OMRON SINIC X,"# An analytical diabolo model for robotic learning and control
+An analytical diabolo model for robotic learning and control,https://medium.com/sinicx/an-analytical-diabolo-model-for-robotic-learning-and-control-c8d8a8384d6d,Felix von Drigalski,15,6,0,63.0,An analytical diabolo model for robotic learning and control,https://arxiv.org/pdf/2011.09068,OMRON SINIC X,"# An analytical diabolo model for robotic learning and control
 
 At OMRON SINIC X, we made two robot arms play diabolo and are preparing to release the simulation model, dataset and control algorithm.
 
@@ -2688,7 +2454,7 @@ The construction of the diabolo model presented me with many unique and interest
 This internship was a valuable opportunity to gain experience in robot control and dynamic object manipulation. I learned a great deal about motion capture technology and the practical side of robot manipulation, in addition to diabolo juggling itself. I picked up a few programming tricks while writing the code for the project and a few juggling tricks from watching the resulting simulations. There is a long way to go, but it feels like a good start.
 
 Would you like to make robots learn and do exciting things? Then send us your application at internships@sinicx.com and get in touch! More details are available here.",1.1517976993892027,28.0,Average
-38,A new Transformer Model for Symbolic Regression towards Scientific Discovery,https://medium.com/sinicx/a-new-transformer-model-for-symbolic-regression-towards-scientific-discovery-be72548014ac,Ryo Igarashi,4,32,1,63.0,A Transformer Model for Symbolic Regression towards Scientific Discovery,https://arxiv.org/pdf/2312.04070,OMRON SINIC X,"# A new Transformer Model for Symbolic Regression towards Scientific Discovery
+A new Transformer Model for Symbolic Regression towards Scientific Discovery,https://medium.com/sinicx/a-new-transformer-model-for-symbolic-regression-towards-scientific-discovery-be72548014ac,Ryo Igarashi,4,32,1,63.0,A Transformer Model for Symbolic Regression towards Scientific Discovery,https://arxiv.org/pdf/2312.04070,OMRON SINIC X,"# A new Transformer Model for Symbolic Regression towards Scientific Discovery
 
 This article presents our work available here (OpenReview), which has been accepted at the NeurIPS2023 Workshop on AI for Scientific Discovery. We introduce a new Transformer model tailored for Symbolic Regression in the context of automated / assisted Scientific Discovery. To try our models, head over our GitHub repository.
 
@@ -2758,7 +2524,7 @@ Also, the representation of the ground-truth equations has to be consistent. For
 Besides, we showed that the Encoder architecture plays an important role in Symbolic Regression performances (see our paper). Designing an Encoder as flexible as possible and capable of learning meaningful features for each tabular dataset is crucial to prevent from overfitting and therefore obtain a generalizable learning.
 
 Finally, the difference between in-domain (training datasets) and out-of-domain (unseen ground-truth equations) is probably the most complicated issue with Transformer models for Symbolic Regression. Typically, our model can correctly predict equations seen during training (even during validation and test at training time), but generalization to the SRSD datasets is much harder.",3.1243472695445336,75.0,Very Good
-39,Goal Misgeneralisation: Why Correct Specifications Aren’t Enough For Correct Goals,https://deepmindsafetyresearch.medium.com/goal-misgeneralisation-why-correct-specifications-arent-enough-for-correct-goals-cf96ebc60924,DeepMind Safety Research,3000,207,1,0.0,Goal Misgeneralization: Why Correct Specifications Aren't Enough For Correct Goals,https://arxiv.org/pdf/2210.01790,DeepMind Safety Research,"# Goal Misgeneralisation: Why Correct Specifications Aren’t Enough For Correct Goals
+Goal Misgeneralisation: Why Correct Specifications Aren’t Enough For Correct Goals,https://deepmindsafetyresearch.medium.com/goal-misgeneralisation-why-correct-specifications-arent-enough-for-correct-goals-cf96ebc60924,DeepMind Safety Research,3000,207,1,0.0,Goal Misgeneralization: Why Correct Specifications Aren't Enough For Correct Goals,https://arxiv.org/pdf/2210.01790,DeepMind Safety Research,"# Goal Misgeneralisation: Why Correct Specifications Aren’t Enough For Correct Goals
 
 By Rohin Shah, Vikrant Varma, Ramana Kumar, Mary Phuong, Victoria Krakovna, Jonathan Uesato, and Zac Kenton. For more details, check out our paper.
 
@@ -2845,7 +2611,7 @@ Another approach is to maintain uncertainty about the goal, for example by learn
 We can also seek to mitigate the particularly concerning type of GMG, where a deceptive model is learned. Progress in mechanistic interpretability would allow us to provide feedback on the model’s reasoning, enabling us to select for models that achieve the right outcomes on the training data for the right reasons. A limitation of this approach is that it may increase the risk of learning a deceptive model that can also deceive the interpretability techniques. Another approach is recursive evaluation, in which the evaluation of models is assisted by other models, which could help to identify deception.
 
 We would be happy to see follow-up work on mitigating GMG and investigating how likely it is to occur in practice, for example, studying how the prevalence of this problem changes with scale. Our research team is keen to see more examples of GMG in the wild, so if you have come across any, please submit them to our collection!",3.3042470033758082,80.0,Excellent
-40,Flash-LLM: Enabling Cost-Effective and Highly-Efficient Large Generative Model Inference With Unstructured Sparsity,https://medium.com/@fsalab/flash-llm-enabling-cost-effective-and-highly-efficient-large-generative-model-inference-with-06ef6c586734,FSA Lab,9,14,0,0.0,Flash-LLM: Enabling Cost-Effective and Highly-Efficient Large Generative Model Inference with Unstructured Sparsity,https://arxiv.org/pdf/2309.10285,FSA Lab,"# Flash-LLM: Enabling Cost-Effective and Highly-Efficient Large Generative Model Inference With Unstructured Sparsity
+Flash-LLM: Enabling Cost-Effective and Highly-Efficient Large Generative Model Inference With Unstructured Sparsity,https://medium.com/@fsalab/flash-llm-enabling-cost-effective-and-highly-efficient-large-generative-model-inference-with-06ef6c586734,FSA Lab,9,14,0,0.0,Flash-LLM: Enabling Cost-Effective and Highly-Efficient Large Generative Model Inference with Unstructured Sparsity,https://arxiv.org/pdf/2309.10285,FSA Lab,"# Flash-LLM: Enabling Cost-Effective and Highly-Efficient Large Generative Model Inference With Unstructured Sparsity
 
 Haojun Xia* (FSA lab, University of Sydney), Zhen Zheng* (Alibaba), Yuchao Li (Alibaba), Donglin Zhuang (FSA lab, University of Sydney), Zhongzhu Zhou (FSA lab, University of Sydney), Xiafei Qiu (Alibaba), Yong Li (Alibaba), Wei Lin (Alibaba), Shuaiwen Leon Song (FSA lab, University of Sydney)
 
@@ -2918,7 +2684,7 @@ The development of LLM systems is rapid. In just over a year, a large number of 
 [2] Ningxin Zheng, Bin Lin, Quanlu Zhang, Lingxiao Ma, Yuqing Yang, Fan Yang, Yang Wang, Mao Yang, and Lidong Zhou. SparTA: Deep-Learning Model Sparsity via Tensor-with-Sparsity-Attribute. OSDI 2022.
 
 [3] FasterTransformer. https://github.com/NVIDIA/FasterTransformer",1.9572912446521682,47.0,Good
-41,"On interventions, counterfactuals, and dynamic models",https://medium.com/@osazuwa/integrating-markov-processes-with-structural-causal-modeling-enables-counterfactual-inference-in-e16e0c4d3f9,Robert Osazuwa Ness,253,78,0,0.0,Integrating Markov processes with structural causal modeling enables counterfactual inference in complex systems,https://arxiv.org/pdf/1911.02175,Robert Osazuwa Ness,"# On interventions, counterfactuals, and dynamic models
+"On interventions, counterfactuals, and dynamic models",https://medium.com/@osazuwa/integrating-markov-processes-with-structural-causal-modeling-enables-counterfactual-inference-in-e16e0c4d3f9,Robert Osazuwa Ness,253,78,0,0.0,Integrating Markov processes with structural causal modeling enables counterfactual inference in complex systems,https://arxiv.org/pdf/1911.02175,Robert Osazuwa Ness,"# On interventions, counterfactuals, and dynamic models
 
 # A summary of our causal machine learning manuscript in NeurIPS 2019
 
@@ -2962,7 +2728,7 @@ Researchers trying to link deep learning and causal reasoning. We implemented th
     * Oberst, M., & Sontag, D. (2019). Counterfactual Off-Policy Evaluation with Gumbel-Max Structural Causal Models. arXiv preprint arXiv:1905.05824.
     * Pearl, J. (2000). Causality: models, reasoning and inference (Vol. 29). Cambridge: MIT press.
     * Wilkinson, D. J. (2011). Stochastic modelling for systems biology. CRC press.",2.7137804431833024,66.0,Very Good
-42,Unsupervised Keyphrase Extraction with PatternRank,https://medium.com/data-science/unsupervised-keyphrase-extraction-with-patternrank-28ec3ca737f0,Tim Schopf,382,238,3,816000.0,PatternRank: Leveraging Pretrained Language Models and Part of Speech for Unsupervised Keyphrase Extraction,https://arxiv.org/pdf/2210.05245,TDS Archive,"# Unsupervised Keyphrase Extraction with PatternRank
+Unsupervised Keyphrase Extraction with PatternRank,https://medium.com/data-science/unsupervised-keyphrase-extraction-with-patternrank-28ec3ca737f0,Tim Schopf,382,238,3,816000.0,PatternRank: Leveraging Pretrained Language Models and Part of Speech for Unsupervised Keyphrase Extraction,https://arxiv.org/pdf/2210.05245,TDS Archive,"# Unsupervised Keyphrase Extraction with PatternRank
 
 ## Using pretrained transformer language models and part of speech for state-of-the-art keyphrase extraction
 
@@ -3041,7 +2807,7 @@ arxiv.org
 ### Set of vectorizers that extract keyphrases with part-of-speech patterns from a collection of text documents and convert…
 
 github.com",3.0802186153002453,74.0,Very Good
-43,Efficient Hierarchical Domain Adaptation using Pretrained Language Models,https://medium.com/ai2-blog/efficient-hierarchical-domain-adaptation-using-pretrained-language-models-fdd04c001230,Alexandra Chronopoulou,5,24,0,1600.0,Efficient Hierarchical Domain Adaptation for Pretrained Language Models,https://arxiv.org/pdf/2112.08786,Ai2 Blog,"# Efficient Hierarchical Domain Adaptation using Pretrained Language Models
+Efficient Hierarchical Domain Adaptation using Pretrained Language Models,https://medium.com/ai2-blog/efficient-hierarchical-domain-adaptation-using-pretrained-language-models-fdd04c001230,Alexandra Chronopoulou,5,24,0,1600.0,Efficient Hierarchical Domain Adaptation for Pretrained Language Models,https://arxiv.org/pdf/2112.08786,Ai2 Blog,"# Efficient Hierarchical Domain Adaptation using Pretrained Language Models
 
 This is a blog post for our paper “Efficient Hierarchical Domain Adaptation using Pretrained Language Models” accepted at NAACL 2022.
 
@@ -3094,7 +2860,7 @@ References
 [5] Dodge, J., Sap, M., Marasovic, A., Agnew, W., Ilharco, G., Groeneveld, D., Mitchell, M., Gardner, M. (2021). Documenting large webtext corpora: A case study on the colossal clean crawled corpus. In Proceedings of the Conference on Empirical Methods in Natural Language Processing (EMNLP).
 
 [6] Aharoni, R., Goldberg, Y. (2020). Unsupervised domain clusters in pretrained language models. In Proceedings of the Annual Meeting of the Association for Computational Linguistics (ACL).",2.6650343020840808,64.0,Good
-44,Efficient Risk-Averse Reinforcement Learning,https://medium.com/data-science/efficient-risk-averse-reinforcement-learning-29fbd0c4a906,Ido Greenberg,47,111,0,816000.0,Efficient Risk-Averse Reinforcement Learning,https://arxiv.org/pdf/2205.05138,TDS Archive,"# Efficient Risk-Averse Reinforcement Learning
+Efficient Risk-Averse Reinforcement Learning,https://medium.com/data-science/efficient-risk-averse-reinforcement-learning-29fbd0c4a906,Ido Greenberg,47,111,0,816000.0,Efficient Risk-Averse Reinforcement Learning,https://arxiv.org/pdf/2205.05138,TDS Archive,"# Efficient Risk-Averse Reinforcement Learning
 
 ## Train your reinforcement learning agent to handle unlucky scenarios and avoid accidents
 
@@ -3162,7 +2928,7 @@ Finally, we notice that the CEM sampler itself performed as desired. In the Driv
 In this post, we saw that risk-averse objectives in RL are more challenging to train than the standard objective of the expected value — due to blindness to success and sample inefficiency. We introduced CeSoR, which combines soft risk to overcome blindness to success and the CEM sampler to improve sample efficiency and preserve risk aversion. On a driving benchmark, CeSoR learned an intuitive safe-driving policy and managed to prevent all the accidents that happened to alternative agents.
 
 This work is but a starting point towards more efficient and effective risk-averse RL. Future research may improve CeSoR directly (e.g., through the soft-risk scheduling), or extend it beyond policy gradient methods and beyond the CVaR risk measure.",2.73024447970115,66.0,Very Good
-45,Unsupervised Text Classification with Lbl2Vec,https://medium.com/data-science/unsupervised-text-classification-with-lbl2vec-6c5e040354de,Tim Schopf,382,308,6,816000.0,Lbl2Vec: An Embedding-Based Approach for Unsupervised Document Retrieval on Predefined Topics,https://arxiv.org/pdf/2210.06023,TDS Archive,"# Unsupervised Text Classification with Lbl2Vec
+Unsupervised Text Classification with Lbl2Vec,https://medium.com/data-science/unsupervised-text-classification-with-lbl2vec-6c5e040354de,Tim Schopf,382,308,6,816000.0,Lbl2Vec: An Embedding-Based Approach for Unsupervised Document Retrieval on Predefined Topics,https://arxiv.org/pdf/2210.06023,TDS Archive,"# Unsupervised Text Classification with Lbl2Vec
 
 ## An introduction to embedding-based classification of unlabeled text documents
 
@@ -3261,7 +3027,7 @@ Lbl2Vec is a recently developed approach that can be used for unsupervised text 
 # Sources
     * Schopf, T.; Braun, D. and Matthes, F. (2021). Lbl2Vec: An Embedding-based Approach for Unsupervised Document Retrieval on Predefined Topics, (2021), Proceedings of the 17th International Conference on Web Information Systems and Technologies
     * https://github.com/sebischair/Lbl2Vec",3.34653027127618,81.0,Excellent
-46,LLM Agents can Autonomously Exploit One-day Vulnerabilities,https://medium.com/@danieldkang/llm-agents-can-autonomously-exploit-one-day-vulnerabilities-e1b76e718a59,Daniel Kang,407,61,1,0.0,LLM Agents can Autonomously Exploit One-day Vulnerabilities,https://arxiv.org/pdf/2404.08144,Daniel Kang,"# LLM Agents can Autonomously Exploit One-day Vulnerabilities
+LLM Agents can Autonomously Exploit One-day Vulnerabilities,https://medium.com/@danieldkang/llm-agents-can-autonomously-exploit-one-day-vulnerabilities-e1b76e718a59,Daniel Kang,407,61,1,0.0,LLM Agents can Autonomously Exploit One-day Vulnerabilities,https://arxiv.org/pdf/2404.08144,Daniel Kang,"# LLM Agents can Autonomously Exploit One-day Vulnerabilities
 
 Large language models (LLMs) have become increasingly powerful and are increasingly embodied as agents. These agents can take actions, such as navigating web browsers, writing code, and executing code. Incredibly, LLM agents can now autonomously resolve complex bugs in code, perform economic analysis, and aid in the scientific discovery process.
 
@@ -3304,47 +3070,7 @@ We disclosed our findings to OpenAI prior to releasing our preprint. They have e
 Our findings show that LLM agents are capable of autonomously exploiting real-world cyber vulnerabilities. Fortunately, our agent does not appear to be capable of exploiting zero-day vulnerabilities as is, although extensions may be capable of such exploits. Nonetheless, we hope that our findings encourage deployers of LLMs to carefully consider the dual-use nature of their capabilities.
 
 Written by Richard Fang, Rohan Bindu, Akul Gupta, and Daniel Kang",2.4550206180817016,59.0,Good
-47,Towards Reinforcement Learning Inspired By Humans Without Human Demonstrations,https://medium.com/stanford-aiforhi/towards-reinforcement-learning-inspired-by-humans-without-human-demonstrations-a7c111a4d0de,Ramtin Keramati,42,227,2,111.0,Fast Exploration with Simplified Models and Approximately Optimistic Planning in Model Based Reinforcement Learning,https://arxiv.org/pdf/1806.00175,Stanford AI for Human Impact,"# Towards Reinforcement Learning Inspired By Humans Without Human Demonstrations
-
-## Ramtin Keramati, Jay Whang, Patrick Cho, Emma Brunskill
-
-Leave any 12-year-old alone with an Atari video game for the afternoon and chances are, she will have mastered it before dinner. How do people learn to achieve high reward so quickly and how can we enable artificial agents to do the same? Some hypothesize that people learn and leverage structured models of how the world works (for example see [1,2]), models that represent the world in terms of objects rather than pixels, and that artificial agents could benefit from doing the same [3].
-
-Inspired by such ideas, we present the Strategic Object-Oriented RL (SOORL) algorithm which is the first algorithm to our knowledge that can achieve positive rewards on the notoriously hard Atari game Pitfall! without access to human demonstrations, and can do so within 50 episodes. SOORL uses stronger prior knowledge (access to objects in the environment and a class of potential dynamics model) than standard deep RL algorithms, but much weaker information than methods that require access to trajectories of decent human play.
-
-SOORL goes beyond prior object oriented RL work by two key ideas:
-    * The agent actively tries to choose a simple model of how the world works that makes the world look deterministic.
-    * The agent uses an optimistic model-based planning approach for making decisions that explicitly assumes the agent will not computationally be able to compute a perfect plan for how to act even if it does know how the world works.
-
-Both are inspired by the challenges faced by humans — given little experience and bounded computational capacity, humans must quickly learn to make good decisions.Towards this, our first idea observes that in contrast to sophisticated and data-intensive deep neural network models, simple deterministic models of what happens to a player’s agent if the player makes a particular keyboard press require little experience to estimate, reduce the computational cost of planning (since only one next state is possible) and though often wrong, may frequently be sufficient for achieving good behavior. Second, in sparse complex video games, game play can require hundreds to thousands of steps, and performing exact planning at the per decision level is intractable for any agent with a reasonably bounded amount of computation, including a 12 year old video gamer. We use a popular and powerful method for lookahead planning (Monte Carlo Tree Search) combined with object oriented optimism to do strategic optimistic exploration and guide the agent towards learning about parts of the world it knows little about.
-
-As a challenge problem we consider Pitfall!, perhaps the hardest Atari video game left for artificial agents. The first positive rewards in Pitfall! happen after multiple rooms which are reached only after careful manipulation, making it important to both strategically explore and think about things far into the future when making decisions.
-
-Our SOORL agent was able to reach an average of 17 rooms in Pitfall! in 50 episodes (out of 100 runs) compared to DDQN [6], a strong baseline that uses pixel input and no strategic exploration, which reached an average of 6 rooms after 2000 episodes.
-
-A histogram below shows the distribution of the best episode performance during training (a training run goes only up to 50 episodes) for each of 100 SOORL runs with different random seeds.
-
-As can be seen, SOORL most often scores no better than all prior deep RL methods which get at best a reward of 0 (though such methods frequently achieve this even after 500 or 5000 episodes, compared to our 50 episodes). In such cases, SOORL often explores much further (reaching more rooms) than alternate approaches but does not reach better best episode scores (as compared to evaluation runs of the alternate approaches). However, in several runs SOORL reaches immediate rewards of 2000 (in room -17) and rewards of 4000 (in room 6), thus achieving to the best of our knowledge the first positive scores on this game when learning without demonstrations. The best results known with human demonstrations are substantially higher (60k) [4], but while very exciting, this work requires substantially more prior knowledge and in particular, significantly decreases the exploration challenge by providing a trusty worked example to build on.
-
-Below are examples of interesting maneuvers learned by the SOORL agent.
-
-SOORL still has many limitations. Perhaps the most immediately critical shortcomings is that it requires a class of reasonable potential dynamics models to be specified (SOORL then performs model selection over this set), and it does not learn and leverage a value function to use during tree search, which was an important part of early world-class Go artificial intelligent players [5]. We expect incorporating a value function will be crucial for improved and consistent performance.
-
-Yet despite these weaknesses, these results are also an exciting demonstration that a model-based RL agent can quickly learn to act well in extremely challenging sparse reward video games like Pitfall! by strategically planning to learn more about how a, assumed to be simple, world works in order to make good decisions.
-
-A preliminary version of our paper is available here.
-
-The below video clip shows the SOORL agent reaching the gold treasure (a 4000-point bonus):
-
-## References
-
-[1] Tsividis, Pedro A., Thomas Pouncy, Jacqueline L. Xu, Joshua B. Tenenbaum, and Samuel J. Gershman. “Human Learning in Atari.” In Proceedings of the AAAI Spring Symposium on Science of Intelligence (2017)
-[2] Lake, Brenden M., Tomer D. Ullman, Joshua B. Tenenbaum, and Samuel J. Gershman. “Building Machines that Learn and Think Like People.” Behavioral and Brain Sciences 40 (2017).
-[3] Diuk, Carlos, Andre Cohen, and Michael L. Littman. “An Object-Oriented Representation for Efficient Reinforcement Learning.” In Proceedings of the International Conference on Machine Learning (ICML) 2008.
-[4] Aytar, Yusuf, Tobias Pfaff, David Budden, Tom Le Paine, Ziyu Wang, Nando de Freitas. “Playing Hard Exploration Games by Watching YouTube”, arXiv:1805.11592
-[5] Silver, David, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja Huang, Arthur Guez, Thomas Hubert et al. “Mastering the Game of Go Without Human Knowledge.” Nature 550, no. 7676 (2017): 354.
-[6] Van Hasselt, Hado, Arthur Guez, and David Silver. “Deep Reinforcement Learning with Double Q-Learning.” In Proceedings of the Conference on the Association for the Advancement of Artificial Intelligence (AAAI) 2016.",4.142180093348533,100.0,Excellent
-48,Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting,https://pub.towardsai.net/deep-reinforcement-learning-for-cryptocurrency-trading-practical-approach-to-address-backtest-2aebfd5fa030,Berend,129,116,0,79000.0,Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting,https://arxiv.org/pdf/2209.05559,Towards AI,"# Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting
+Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting,https://pub.towardsai.net/deep-reinforcement-learning-for-cryptocurrency-trading-practical-approach-to-address-backtest-2aebfd5fa030,Berend,129,116,0,79000.0,Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting,https://arxiv.org/pdf/2209.05559,Towards AI,"# Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting
 
 This article, written by Berend Gort, details a project he worked on as a Research Assistant at Columbia University. The project will be generously donated to the open-source AI4Finance Foundation, which aims to establish a foundation similar to Linux and Apache in the cutting-edge field of AI and finance.
 
@@ -3512,7 +3238,7 @@ Berend Gort
     * Bailey, D. H., Borwein, J. M., López De Prado, M., & Zhu, Q. J. (2017). The probability of backtest overfitting. Journal of Computational Finance, 20(4), 39–69. https://doi.org/10.21314/JCF.2016.322
 
 2. Prado, M. L. de. (2018). Advances in financial machine learning.",3.1235895572894514,75.0,Very Good
-49,Introducing Layer Enhanced Classification (LEC),https://medium.com/data-science/introducing-layer-enhanced-classification-lec-4972f4f1c79f,Tula Masterman,378,385,3,816000.0,Lightweight Safety Classification Using Pruned Language Models,https://arxiv.org/pdf/2412.13435,TDS Archive,"Featured
+Introducing Layer Enhanced Classification (LEC),https://medium.com/data-science/introducing-layer-enhanced-classification-lec-4972f4f1c79f,Tula Masterman,378,385,3,816000.0,Lightweight Safety Classification Using Pruned Language Models,https://arxiv.org/pdf/2412.13435,TDS Archive,"Featured
 
 # Introducing Layer Enhanced Classification (LEC)
 
