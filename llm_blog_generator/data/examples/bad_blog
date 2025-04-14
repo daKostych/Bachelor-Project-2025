@@ -1,26 +1,46 @@
-# Recurrent drafter for fast speculative decoding in Large Language Models— Paper Review
+# SMoA: Improving Multi-agent Large Language Models with Sparse Mixture-of-Agents — Paper Review
 
-Paper Link — https://arxiv.org/pdf/2403.09919
+Paper Link — https://arxiv.org/pdf/2411.03284
 
-Researchers at Apple have developed an innovative solution called ReDrafter to address the critical challenge of inference speed in large language models (LLMs). This novel approach tackles the inherent slowness of text generation in AI applications like chatbots by introducing a speculative decoding technique. ReDrafter leverages a recurrent neural network (RNN) to generate draft tokens in parallel with the main model, significantly reducing response latency.
+This paper review discusses the evolution and challenges of multi-agent Large Language Model (LLM) systems, and introduces a new approach called Sparse Mixture-of-Agents (SMoA).
 
-## What is speculative decoding ?
+Multi-agent LLM systems have been developed to allow different agents to focus on specific tasks, avoiding the need for extensive retraining. Early approaches used a layer-based structure, but this was limited by processing queries one agent at a time. The Mixture-of-Agents (MoA) method improved on this by allowing simultaneous processing of queries by multiple agents, with an aggregator combining their outputs.
 
-Speculative decoding is a technique designed to speed up inference in large language models by utilizing smaller, more efficient models to predict potential sequences. Instead of generating each token one by one, these candidate sequences are quickly verified by the main LLM. This method helps alleviate memory bandwidth constraints by minimizing the number of passes through the LLM. However, it’s important to consider that using draft models can introduce additional overhead. Therefore, the reduction in LLM calls must be substantial enough to outweigh these costs and achieve a net speedup.
+However, MoA faces two main challenges:
 
-## Methodolgy
+1. High computational costs: While MoA is faster, it requires more overall computational power, which limits scalability and efficiency.
 
-In this paper, the authors introduce ReDrafter, a novel approach for accelerating LLM inference. ReDrafter’s performance gains are driven by three key aspects:
-    * RNN-based draft model: ReDrafter employs an RNN conditioned on the LLM’s hidden states as the draft model. It uses the output from the last layers of the LLM transformer and embeddings of historical tokens as inputs. This design leverages local temporal dependencies, enhancing draft prediction accuracy and converting computational resources into speedups.
-    * Beam search and dynamic tree attention: The draft model utilizes beam search for inference, maintaining diversity and optimality in candidate response generation. ReDrafter applies a dynamic tree attention algorithm to eliminate duplicated prefixes among candidates, revealing a tree structure over beam search results and significantly reducing computational overhead.
-    * Knowledge distillation training: The system is trained through knowledge distillation from the LLM, improving alignment between the draft model’s predictions and those of the LLM. This approach effectively shifts computational load from inference time to training time.
+2. Lack of diverse thinking: MoA agents tend to generate similar responses, reducing effectiveness in tasks requiring varied perspectives.
 
-During each inference step, ReDrafter alternates between using a draft model to generate tokens and having the LLM verify and accept them. The system is most efficient when all candidate tokens are accepted, meaning the draft model’s predictions align with the LLM’s within a specified range T. The KL divergence serves as a natural loss function to optimize this alignment
+To address these issues, the authors propose Sparse Mixture-of-Agents (SMoA), inspired by sparse mixture-of-experts (SMoE) designs. SMoA introduces two new agent types:
 
-## Results
+1. Judge LLM: Selects high-quality responses for the next round.
+2. Moderator LLM: Controls information flow and decides when to end the process.
 
-ReDrafter significantly speeds up Vicuna inference in MT-Bench, achieving up to a 3.5x acceleration using a PyTorch implementation on Nvidia H100 GPUs. To demonstrate its practicality in production, ReDrafter was integrated into TensorRT-LLM, resulting in up to a 2.5x speedup on the same GPUs. Additionally, its effectiveness for on-device applications was confirmed by implementing the approach in MLX and testing it on Metal GPUs in Apple Silicon chips, where it achieved up to a 2.3x speedup.
+This approach aims to reduce unnecessary data processing, improving efficiency and scalability. Additionally, SMoA assigns distinct roles to each agent, promoting diverse thinking and problem-solving approaches. This design is influenced by the expert diversity principle used in SMoE to balance workload among experts.
 
-The method achieves remarkable performance improvements by using a lightweight RNN draft model conditioned on the LLM’s hidden states. By employing techniques like beam search and dynamic tree attention, ReDrafter can accelerate text generation up to 3.5x on high-performance GPUs and 2.3x on Apple Silicon chips. This breakthrough promises to enhance the responsiveness of AI-powered applications, making interactions with large language models more seamless and efficient
+By implementing these changes, SMoA seeks to overcome the limitations of previous multi-agent LLM systems and enhance their practical utility.
 
-Paper Link — https://arxiv.org/pdf/2403.09919
+The key contributions of the paper are:
+
+1. Identification of limitations in existing multi-agent LLM frameworks:
+The authors highlight two main issues with current approaches, particularly the Mixture-of-Agents (MoA) method:
+— High token computational cost, which limits scalability and efficiency
+— Lack of diverse thinking among LLM agents, leading to homogenized responses
+
+2. Proposal of a novel architecture — Sparse Mixture-of-Agents (SMoA):
+This new approach is designed to address the limitations of existing frameworks by:
+— Introducing sparsity in agent interactions through two new agent types: Judge LLM and Moderator LLM
+— Assigning distinct roles to each LLM agent to promote diverse thinking
+
+3. Experimental validation:
+The authors conducted extensive experiments across various tasks to demonstrate that:
+— SMoA achieves comparable performance to MoA
+— SMoA uses significantly fewer computational resources than MoA
+
+4. In-depth analysis and insights:
+The paper provides:
+— A comparison of different multi-agent methods
+— Detailed discussion of the advantages of SMoA over existing approaches
+
+These contributions aim to advance the field of multi-agent LLM systems by improving efficiency, scalability, and diversity of thinking while maintaining high performance levels. The SMoA architecture represents a significant step forward in addressing the challenges faced by current multi-agent LLM frameworks.

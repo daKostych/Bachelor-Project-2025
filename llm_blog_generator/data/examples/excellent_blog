@@ -1,118 +1,40 @@
-# How AI Is Changing the Way We Code
+# Towards Reinforcement Learning Inspired By Humans Without Human Demonstrations
 
-## Evidence from ChatGPT and Stack Overflow
+## Ramtin Keramati, Jay Whang, Patrick Cho, Emma Brunskill
 
-In short: In this article, you will find a summary of my latest research on AI and work (exploring the effect of AI on productivity while opening up the discussion on the long-term effects), an example of a quasi-experimental method (Difference-in-Difference) illustrated with ChatGPT and Stack Overflow, and see how you can extract data from Stack Overflow with a simple SQL query.
+Leave any 12-year-old alone with an Atari video game for the afternoon and chances are, she will have mastered it before dinner. How do people learn to achieve high reward so quickly and how can we enable artificial agents to do the same? Some hypothesize that people learn and leverage structured models of how the world works (for example see [1,2]), models that represent the world in terms of objects rather than pixels, and that artificial agents could benefit from doing the same [3].
 
-Link to the full scientific article (please cite): https://arxiv.org/abs/2308.11302
+Inspired by such ideas, we present the Strategic Object-Oriented RL (SOORL) algorithm which is the first algorithm to our knowledge that can achieve positive rewards on the notoriously hard Atari game Pitfall! without access to human demonstrations, and can do so within 50 episodes. SOORL uses stronger prior knowledge (access to objects in the environment and a class of potential dynamics model) than standard deep RL algorithms, but much weaker information than methods that require access to trajectories of decent human play.
 
-As
-with most technological revolutions, ChatGPT’s release was accompanied by fascination and fear. On one hand in just two months, with 100 millions monthly active users, the app broke the record for the fastest-growing consumer application in history. On the other hand, a report by Goldman Sachs claimed that such technology could replace more than 300 millions jobs globally [1]. Additionally, Elon Musk alongside more than 1,000 tech leaders and researchers signed an open letter urging for a pause on the most advanced AI developments [2].
+SOORL goes beyond prior object oriented RL work by two key ideas:
+    * The agent actively tries to choose a simple model of how the world works that makes the world look deterministic.
+    * The agent uses an optimistic model-based planning approach for making decisions that explicitly assumes the agent will not computationally be able to compute a perfect plan for how to act even if it does know how the world works.
 
-``We can only see a short distance ahead, but we can see plenty that needs to be done.’’ Alan Turing
+Both are inspired by the challenges faced by humans — given little experience and bounded computational capacity, humans must quickly learn to make good decisions.Towards this, our first idea observes that in contrast to sophisticated and data-intensive deep neural network models, simple deterministic models of what happens to a player’s agent if the player makes a particular keyboard press require little experience to estimate, reduce the computational cost of planning (since only one next state is possible) and though often wrong, may frequently be sufficient for achieving good behavior. Second, in sparse complex video games, game play can require hundreds to thousands of steps, and performing exact planning at the per decision level is intractable for any agent with a reasonably bounded amount of computation, including a 12 year old video gamer. We use a popular and powerful method for lookahead planning (Monte Carlo Tree Search) combined with object oriented optimism to do strategic optimistic exploration and guide the agent towards learning about parts of the world it knows little about.
 
-In line with Alan Turing’s quote, this article does not seek to predict heroically the distant future of AI and its impacts. However, I focus on one of the main observable consequences affecting us: How AI is changing the way we code.
+As a challenge problem we consider Pitfall!, perhaps the hardest Atari video game left for artificial agents. The first positive rewards in Pitfall! happen after multiple rooms which are reached only after careful manipulation, making it important to both strategically explore and think about things far into the future when making decisions.
 
-T
-he world changed with the birth of ChatGPT. At least, as someone who codes every day, my world changed overnight. Instead of spending hours on Google to find the right solution or digging into the answers on Stack Overflow and translating the solution to my exact problem with the right variables names and matrices dimensions, I could just ask ChatGPT. The chatbot would not only give me an answer in a blink of an eye but the answer would fit my exact situation (e.g. correct names, dataframes dimensions, variable types, etc.). I was blown away, and my productivity jumped suddenly.
+Our SOORL agent was able to reach an average of 17 rooms in Pitfall! in 50 episodes (out of 100 runs) compared to DDQN [6], a strong baseline that uses pixel input and no strategic exploration, which reached an average of 6 rooms after 2000 episodes.
 
-Hence, I decided to explore the large-scale effect of ChatGPT release and its potential effect on productivity and ultimately on the way we work. I defined three hypotheses (Hs) that I tested using Stack Overflow data.
+A histogram below shows the distribution of the best episode performance during training (a training run goes only up to 50 episodes) for each of 100 SOORL runs with different random seeds.
 
-H1: ChatGPT decreases the number of questions asked on Stack Overflow. If ChatGPT can solve coding problems in seconds, we can expect a fall of questions on coding community platforms where asking a question and getting an answer takes time.
+As can be seen, SOORL most often scores no better than all prior deep RL methods which get at best a reward of 0 (though such methods frequently achieve this even after 500 or 5000 episodes, compared to our 50 episodes). In such cases, SOORL often explores much further (reaching more rooms) than alternate approaches but does not reach better best episode scores (as compared to evaluation runs of the alternate approaches). However, in several runs SOORL reaches immediate rewards of 2000 (in room -17) and rewards of 4000 (in room 6), thus achieving to the best of our knowledge the first positive scores on this game when learning without demonstrations. The best results known with human demonstrations are substantially higher (60k) [4], but while very exciting, this work requires substantially more prior knowledge and in particular, significantly decreases the exploration challenge by providing a trusty worked example to build on.
 
-H2: ChatGPT increases the quality of the questions asked. If ChatGPT is used largely, the remaining questions on Stack Overflow must be better documented as ChatGPT might have already helped a bit.
+Below are examples of interesting maneuvers learned by the SOORL agent.
 
-H3: The remaining questions are more complex. We can expect that the remaining questions are more challenging as they could potentially not be answered by ChatGPT. Hence, to test this we are testing if the proportion of unanswered questions increases. In addition, I also test if the number of views per question changes. If the number of views per question is stable it would be an additional sign that the complexity of the remaining questions is increased and that this finding is not only caused by the reduced activity on the platform.
+SOORL still has many limitations. Perhaps the most immediately critical shortcomings is that it requires a class of reasonable potential dynamics models to be specified (SOORL then performs model selection over this set), and it does not learn and leverage a value function to use during tree search, which was an important part of early world-class Go artificial intelligent players [5]. We expect incorporating a value function will be crucial for improved and consistent performance.
 
-To test those hypotheses, I will exploit the sudden release of ChatGPT on Stack Overflow. In November 2022, when OpenAI released publicly their chatbot, no other alternatives were available (e.g. Google Bard), and the access was free (not limited to paid subscription as with OpenAI ChatGPT 4 or Code Interpreter). Hence it is possible to observe how the activity changed in the online coding community before and after the shock. However, despite how ‘clean’ this shock is, other effects might be confounded and hence question causality. In particular, seasonality (e.g. end of the year holidays after the release) as well as the fact that the more recent the question is, the lower the number of views and the probability that an answer is found.
+Yet despite these weaknesses, these results are also an exciting demonstration that a model-based RL agent can quickly learn to act well in extremely challenging sparse reward video games like Pitfall! by strategically planning to learn more about how a, assumed to be simple, world works in order to make good decisions.
 
-Ideally, to mitigate the influence of potential lingering confounding variables such as seasonality and measure a causal effect, we would like to observe the world without ChatGPT release which is impossible (e.g. the fundamental problem of causal inference). Nevertheless, I will address this challenge by exploiting the fact that the quality of the answers of ChatGPT for coding-related issues varies from one language to another and use quasi-experimental methods to limit the risk of other factors confounding the effect (Difference-in-Difference).
+A preliminary version of our paper is available here.
 
-To do so, I will compare the activity on Stack Overflow between Python and R. Python is an obvious choice as it, is arguably, one of the
-most popular programming languages used (e.g. ranked 1st in the TIOBE
-Programming Community Index). The large set of resources online for Python provides a rich training set for chatbots like ChatGPT. Now, to compare with Python, I chose R. Python is often cited as the best replacement for R and both are freely available. However, R is somewhat less popular (e.g.~16th in the TIOBE Programming Community index) and hence the training data might be smaller, implying poorer performance by ChatGPT. Anecdotal evidence confirmed this difference (more details on the method in the Method section). Hence, R represents a valid counter factual for Python (it is affected by seasonality but we can expect a negligible effect of ChatGPT).
+The below video clip shows the SOORL agent reaching the gold treasure (a 4000-point bonus):
 
-The Figure above presents the raw weekly data. We can witness the sudden and important drop (21.2%) in the number of questions asked weekly on Stack Overflow about Python after the release of ChatGPT 3.5 while the effect on R is somewhat smaller (drop of 15.8%).
+## References
 
-These ‘qualitative’ observations are confirmed by the statistical model. The econometric model described later finds a statistically significant drop of 937.7 (95% CI: [-1232.8,-642.55 ] ; p-value = 0.000) weekly questions on average for Python on Stack Overflow. The subsequent analysis, utilizing the Diff-in-Diff method, further unveils an improvement in question quality (measured on the platform by a score), alongside an increase in the proportion of questions remaining unanswered (while the average number of views per question seems unchanged). Consequently, this study provides evidence for the three hypotheses defined earlier.
-
-These findings underscore the profound role of AI in the way we work. By addressing routine inquiries, generative AI empowers individuals to channel their efforts toward more complex tasks while boosting their productivity. However, important long-term potential adverse effects are also discussed in the Discussion section.
-
-The rest of the article will present the Data and Methods, then the Results, and will close with the Discussion.
-
-# Data
-
-The data have been extracted using an SQL query on the Stack Overflow data explorer portal (licence: CC BY-SA). Here is the SQL command used:
-
-I then aggregated the data by week to reduce the noise and hence obtained a dataset from Monday the 17th of October 2022 to the 19th of March 2023 with information on the number of weekly posts, the number of views, the number of views per questions, the average score per question and the proportion of unanswered question. The score is defined by users of the platform who can vote up or down to say if the question shows “research effort; it is useful and clear” or not.
-
-# Method
-
-In order to measure a causal effect, I use a Difference-in-Difference model which is an econometric method that exploits usually a change over time and compares a treated unit(s) with an untreated group. In order to know more about this method I can recommend you to read the chapter referring to this method in two free e-books: Causal Inference Inference for the Brave and True and Causal Inference: The Mixtape.
-
-In simple terms, the Diff-in-Diff model computes a double difference in order to identify a causal effect. Here is a simplified explanation. First, the idea is to compute two simple differences: the ‘average’ difference between the pre (before ChatGPT release) and post-period for the two groups treated and untreated (here respectively Python and R questions). What we care about is the effect of the treatment on the treated units (here is the effect of ChatGPT release on Python questions). However, as said earlier, there might be another effect still confounded with the treatment (e.g. seasonality). In order to address this issue, the idea of the model is to compute a double difference, in order to check how the first difference for the treated (Python) is different from the second (difference for the control group, R). As we expect no treatment effect (or negligible) on the control group, while still affected by seasonality for example, we can get rid of this potential confounding factor and ultimately measure a causal effect.
-
-Here is a slightly more formal representation.
-
-First difference for the treated group:
-
-E[Yᵢₜ| Treatedᵢ, Postₜ]-E[Yᵢₜ| Treatedᵢ, Preₜ] = λₜ+β
-
-Here i and t refer respectively to the language (R or Python) and to the week. While treated refer to the questions related to Python and Post refers to the period when ChatGPT was available. This simple difference might represent the causal effect of ChatGPT (β) + some time effect λₜ (e.g. seasonality).
-
-First difference for the control group:
-
-E[Yᵢₜ| Controlᵢ, Postₜ]-E[Yᵢₜ| Controlᵢ, Preₜ] = λₜ
-
-The simple difference for the control group does not include the treatment effect (as it is untreated) but only the λₜ.
-
-Hence the double difference will give:
-
-DiD = ( λₜ+β) — λₜ = β
-
-Under the assumption that the λₜ are identical for both groups (parallel trend assumption, discussed below), the double difference will allow us to identify β, the causal effect.
-
-The essence of this model lies in the parallel trend assumption. In order to claim a causal effect we should be convinced that without ChatGPT the evolution of posts on Stack Overflow for Python (treated) and for R (untreated) would be the same in the treatment period (after November 2022). However, this is obviously impossible to observe and hence to test directly (c.f. the Fundamental Problem of Causal Inference). (If you want to learn more about this concept and causal inference find my videos and articles on Towards Data Science: the Science and Art of Causality). However, it is possible to test if the trends are parallel before the shock, suggesting that the control group is a potentially good “counterfactual”. Two different placebo tests made with the data revealed that we cannot reject the parallel trend assumption for the pre-ChatGPT period (p-values of the tests respectively 0.722 and 0.397 (see online APPENDIX B)).
-
-Formal definition:
-
-Yᵢₜ = β₀ + β₁ Pythonᵢ + β₂ ChatGPTₜ + β₃ Pythonᵢ × ChatGPTₜ + uᵢₜ
-
-“i” and “t” correspond respectively to the topic of the question on Stack Overflow (i ∈ {R; Python}) and the week. Yᵢₜ represents the outcome variable: Number of questions (H1), Average question score (H2), and proportion of unanswered questions (H3). Pythonᵢ is a binary
-variable taking the value 1 if the question is related to Python and 0
-otherwise (related to R). ChatGPTₜ is another binary variable
-taking the value 1 from the release of ChatGPT and onwards and 0
-otherwise. uᵢₜ is an error term clustered at the coding language
-level (i).
-
-The essence of this model lies in the parallel trends assumption. In order to claim a causal effect we should be convinced that without ChatGPT the evolution of posts on Stack Overflow for Python (treated) and for R (untreated) would be the same in the treatment period (after November 2022). However, this is obviously impossible to observe and hence to test directly (c.f. the Fundamental Problem of Causal Inference). (If you want to learn more about this concept and causal inference find my videos and articles on the Science and Art of Causality). However, it is possible to test if the trends are parallel before the shock, suggesting that the control group is a good “counterfactual”. In this case, two different placebo tests reveal that we cannot reject the parallel trends assumption for the pre-ChatGPT period (p-values of the tests respectively 0.722 and 0.397 (see online APPENDIX B)).
-
-# Results
-
-## H1: ChatGPT decreases the number of questions asked on Stack Overflow.
-
-As presented in the introduction, the Diff-in-Diff model estimates a statistically significant drop of 937.7 (95% CI: [-1232.8, -642.55] ; p-value = 0.000) weekly questions on average for Python on Stack Overflow (see Figure 2 below). This represents a fall of 18% in weekly questions.
-
-## H2: ChatGPT increases the quality of the questions asked.
-
-ChatGPT might be helpful to answer questions (c.f. H1). However, when the chatbot cannot solve the issue, it is possible that it allows one to go further and get more information on the problem or some element of the solution. The platform allows us to test this hypothesis as users can vote for each question if they think that “This question shows research effort; it is useful and clear” (increase the score by 1 point), or not (decrease the score by 1 point). This second regression estimates that there is a 0.07 points (95% CI: [-0.0127 , 0.1518 ]; p-value: 0.095) increase in the questions’ score on average (see Figure 3) which represents a 41.2% increase.
-
-## H3: The remaining questions are more complex.
-
-Now that we have some pieces of evidence that ChatGPT is able to provide significant help (solve questions and help document the others), we would like to confirm that the remaining questions are more complex. To do so, we are going to look at two things. First, I find that the proportion of unanswered questions is raising (no answer could be a sign that the questions are more complex). More precisely I find a 2.21 percentage point (95% CI: [ 0.12, 0.30]; p-value: 0.039) increase in the proportion of questions unanswered (see Figure 4) which represents an increase of 6.8%. Second, we also find that the number of views per question is unchanged (we cannot reject the null hypothesis that it is unchanged, with a p-value of 0.477). This second test allows us to partially discard the alternative explanation that there are more unanswered questions due to the lower traffic.
-
-# Discussion
-
-These findings support the view that generative AI could revolutionize our work by taking care of routine questions, allowing us to focus on more complex problems requiring expertise while boosting our productivity.
-
-While this promise sounds exciting there is a reverse of the medal. First, low-qualified work might be replaced by chatbots. Second, such tool might affect (negatively) the way we learn. Personally, I see coding as biking or swimming: watching videos or following classes is not enough, you have to try and fail yourself. If the answers are too good and we don’t force ourselves to study, many people might struggle to learn. Third, if the mass of questions on Stack Overflow fall, it might reduce a valuable source for the training set of generative AI models hence, affecting their long-term performance.
-
-All those long term adverse effects are not clear yet and require careful analysis. Let me know what you think in the comments.
-
-[0] Gallea, Quentin. “From Mundane to Meaningful: AI’s Influence on Work Dynamics — evidence from ChatGPT and Stack Overflow” arXiv econ.GN (2023)
-
-[1] Hatzius, Jan. “The Potentially Large Effects of Artificial Intelligence on Economic Growth (Briggs/Kodnani).” Goldman Sachs (2023).
-
-[2] https://www.nytimes.com/2023/03/29/technology/ai-artificial-intelligence-musk-risks.html
-
-[3] Bhat, Vasudev, et al. “Min (e) d your tags: Analysis of question response time in stackoverflow.” 2014 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining (ASONAM 2014). IEEE, (2014)
+[1] Tsividis, Pedro A., Thomas Pouncy, Jacqueline L. Xu, Joshua B. Tenenbaum, and Samuel J. Gershman. “Human Learning in Atari.” In Proceedings of the AAAI Spring Symposium on Science of Intelligence (2017)
+[2] Lake, Brenden M., Tomer D. Ullman, Joshua B. Tenenbaum, and Samuel J. Gershman. “Building Machines that Learn and Think Like People.” Behavioral and Brain Sciences 40 (2017).
+[3] Diuk, Carlos, Andre Cohen, and Michael L. Littman. “An Object-Oriented Representation for Efficient Reinforcement Learning.” In Proceedings of the International Conference on Machine Learning (ICML) 2008.
+[4] Aytar, Yusuf, Tobias Pfaff, David Budden, Tom Le Paine, Ziyu Wang, Nando de Freitas. “Playing Hard Exploration Games by Watching YouTube”, arXiv:1805.11592
+[5] Silver, David, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja Huang, Arthur Guez, Thomas Hubert et al. “Mastering the Game of Go Without Human Knowledge.” Nature 550, no. 7676 (2017): 354.
+[6] Van Hasselt, Hado, Arthur Guez, and David Silver. “Deep Reinforcement Learning with Double Q-Learning.” In Proceedings of the Conference on the Association for the Advancement of Artificial Intelligence (AAAI) 2016.

@@ -1,59 +1,51 @@
-# Data Centric AI — LLAVA
+# ChatGPT vs Bing … and the urgent need for Responsible AI
 
-https://arxiv.org/abs/2304.08485
+DISCLAIMER: Opinions in this article are my own and not those of my company.
 
-What are the major contributions of the paper?
+Large Language Models (LLM) like GPT3, ChatGPT and BARD are all the rage today. Everyone has an opinion about how these tools are good or bad for society and what they mean for the future of AI. Large language models generate natural language text based on a given input, such as a word, a sentence or a paragraph. They are trained on huge amounts of text data to learn patterns and probabilities of language. Some examples of large language models are GPT-3, Codex, BARD and the recent, LLaMA.
 
-[1] They are able to use bounding box or image caption information from images to ask GPT-4 to generate 3 kinds of questions and their answer [a] High-level details [b] Conversations [c] Deep level details
+Google received a lot of flak for its new model BARD getting a complex question wrong (slightly). When asked “What new discoveries from the James Webb Space Telescope can I tell my 9-year-old about?” — the chatbot provided three answers, out of which 2 were right and 1 was wrong. The wrong one was that the first “exoplanet” picture was taken by JWST, which was incorrect. So basically, the model had an incorrect fact stored in its knowledgebase. For large language models to be effective, we need a way to keep these facts updated or augment the facts with new knowledge.
 
-[2] They use this data to fine-tune an end to end model
+I tried asking 2 publicly available LLMs the following question:
 
-What is the architecture of the model that they fine-tune?
+Who was the 14th person to walk the moon?
 
-It consists of the image encoder part of clip followed by a projection matrix. The matrix projects the image embeddings to the same dimension as the size of the input embedding to a LLAMA model. This is obviously somehow appended to the generated questions embeddings and then the model is used to generate answers as a decoder normally does
+This was by default a test designed to fail since as per NASA — only 12 humans have walked on the moon. Source: https://solarsystem.nasa.gov/news/890/who-has-walked-on-the-moon/
 
-What do they keep frozen/what do they finetune?
+Surprisingly both LLMs — ChatGPT and Bing Chat — gave different answers and pointed me to the 11th and 6th person to walk on the moon. Below are responses from ChatGPT and the newly launched Bing Chat.
 
-There are 2 stages, stage [1] only the projection matrix for the clip is finetuned so that we can get good representations for the language model. [2] Then the image encoder is kept frozen and the projection matrix and the language model is updated
+Both answers captured the context (moon walking) but got the exact answer wrong. Good part was that Bing did give a list of it’s references where I could verify the facts. This is a key Responsible AI principle that needs to be advocated around Transparency and Lineage.
 
-Which datasets do they use for each step?
+On digging deeper, I see that the britanica.com article that was probably used as reference for both answers says that there were 24 people to reach the surface of the moon but only 12 actually walked the surface rest waited in the craft and did actually go to the moon. So technically the answer provided is wrong but the Bing model did give me evidence and helped me reach a conclusion better. This transparency is highly valuable.
 
-The model contains an image encoder that is projected to the language embedding dimension. Note that this encoder is from a CLIP model. Moreover, the text decoder is a Vicuna model. First, they need to adapt this projection layer from the image embedding dimension to the text embedding dimension. For this, the parameters are kept frozen and the projection layer is updated using the C3M (or Conceptual Captions dataset). This is followed by updating the vicuna model and the projection layer, while keeping clip encoder frozen using the COCO dataset. Finally, the model performance is evaluated on the Science QA dataset.
+How Many People Have Been to the Moon? | Britannica
 
-Why use COCO for second stage finetuning and C3M for the first stage even though C3M is created by humans (online scraping)?
+Testing LLMs will need a new strategy and serious consideration for Responsible AI. tenets like Accountability and Transparency become more important than ever in this context. Below is my article on internals of LLMs and how facts are encoded inside of them.
 
-This is because the COCO questions and answers are augmented using the prompts mentioned in the paper and hence, the dataset is very detailed.
+3 Ways to Keep Stale Facts Fresh in Large Language Models | Unite.ai
 
-How is the C3M dataset collected?
+Specific to Responsible AI we also need to consider tenets like Accountability, Transparency, Reproducibility, Security and Privacy. For more details check out our point of view.
 
-Using ALT text and corresponding images. The dataset filteration is quite informative: [1] Image only: Filter images based on format, aspect ratio, image resolution [2] Text only: Missing proper nouns, determiners, conjunctions or containing several nouns or caps at improper places, SEO terms then filter out. Pornographic content [3] Image-text [4] We want to have a diverse dataset with some standardization so that the task does not become too difficult for something like VQA (e.x. generating caption that this is Justin Bieber singing is difficult as it would require a large number of pictures of justin bieber). So we use Hpernyms and replace proper nouns with hypernyms, remove place names etc. [5] Finally we identify concepts in the images using the captions and make sure that we are able to cluster them such that each concept has enough support example 100
+Building a Responsible AI System | Persistent.com
 
-Overall we want to make sure that we have a variety of concepts with enough coverage
+Testing large language models is a process of evaluating their performance, capabilities, limitations or risks on various tasks or domains. For example, one can test how well a large language model can generate code, answer questions, write essays or handle compositionally and inference.
 
-How is this different from how LAION is collected?
+Let’s take an example of generating poetry using GPT3. There are different ways to test the effectiveness of GPT-3 for generating poems. One way is to use automated metrics that measure aspects such as syntactical correctness, lexical diversity, subject continuity and rhyme scheme. Another way is to use human evaluations that rate the poems based on criteria such as creativity, coherence, fluency and emotion. However, both methods have limitations and challenges. For example, automated metrics may not capture the aesthetic or semantic qualities of poems, while human evaluations may be subjective or inconsistent.
 
-Very similar, using different models for filtering pornographic and SMID (socio-moral image dataset) content or morally offensive content. When we are inputting to a model we want to ensure that hefty class imbalance is avoided
+To test the bias of essays generated by ChatGPT, one possible way is to use a bias detection tool that can analyze the language and content of the essays for any signs of prejudice, discrimination or unfairness towards certain groups or individuals. For example, you could use a tool like Perspective API which scores texts based on their toxicity, identity attack, profanity and other attributes. Then test cases need to be designed prompting the model to intentionally generate biased content by providing leading phrases as context. LLMs usually give priority to context and tune their output accordingly. Being able to filter out bias despite it being explicitly present in the prompt is a major test that needs to be conducted.
 
-Why first finetune with C3M then when its so diverse?
+A recent approach to mitigating bias in LLMs is to use constitutional rules. Constitution rules are a set of principles or guidelines that govern the use and development of large language models (LLMs). They can help mitigate bias in LLMs by ensuring that the data, methods and applications of LLMs are aligned with ethical values and social norms. For example, constitution rules can specify how to collect and curate diverse and representative data for training LLMs, how to monitor and evaluate the performance and impact of LLMs, how to protect the privacy and security of users and data sources, and how to promote transparency and accountability of LLM developers and users.
 
-Because the dataset generated in the LLaVa paper using prompting has much more complex discussions
+References:
 
-How is the model evaluated?
+(1) Bias in Large Language Models: GPT-2 as a Case Study. https://blogs.ischool.berkeley.edu/w231/2021/02/24/bias-in-large-language-models-gpt-2-as-a-case-study/
 
-https://llava-vl.github.io/
+(2) Adaptive Test Generation Using a Large Language Model. https://arxiv.org/abs/2302.06527v2
 
-It mainly uses the Science QA dataset, which is collected for K-12 education. For ground truth explanation GPT-4 is provided with image information and the question and the answer and is then used to evaluate the answer generated by the LLaVa model. Moreover, there is an inherent notion of accuracy as the questions have multiple options.
+(3) Meta unveils a new large language model that can run on a single GPU …. https://arstechnica.com/information-technology/2023/02/chatgpt-on-your-pc-meta-unveils-new-ai-model-that-can-run-on-a-single-gpu/
 
-How is GPT used for ensembling?
+(4) COS 597G: Understanding Large Language Models. https://www.cs.princeton.edu/courses/archive/fall22/cos597G/
 
-GPT is used to generate answers and is also used as the judge. When GPT cannot provide good answers LLaVa is used hence enabling ensembling
+(5) Getting started with LangChain – A powerful tool for working with Large …. https://medium.com/@avra42/getting-started-with-langchain-a-powerful-tool-for-working-with-large-language-models-286419ba0842
 
-What are the dimensions of the datasets?
-
-C3M — is 3M but only 600K are filtered COCO — is used because it has bounding boxes. Around 160K. It has conversations, complex question answering etc.
-
-For the dataset filtration the filtering of C3M here is quite interesting and supplants beliefs. How is it filtered? Look at noun phrases (words) in each caption, remove the ones with low frequency and while adding the remaining ones makes sure that none has a fz higher than 100 so as to keep the data balanced
-
-What are some potential applications of LLaVa?
-
-Giving out recopies based on ingredients shown are particularly interesting as they can be extended to robotics with RL based approaches
+(6) Testing Large Language Models on Compositionality and Inference with …. https://aclanthology.org/2022.coling-1.359/
