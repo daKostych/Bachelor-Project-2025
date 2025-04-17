@@ -4,7 +4,7 @@ from langchain_community.vectorstores import FAISS
 
 from src.text_extraction import *
 from src.config import EXAMPLES_PATH, VECTOR_STORE_PATH, PREPROCESSED_BLOG_DATASET_PATH
-from src.models_setup import embedding_model, langchain_embedding_model
+from src.models_setup import langchain_embedding_model
 #=======================================================================================================================
 def extract_llm_assessment(df, prompt_template, model, examples, max_retries=3):
     """Extract model assessment of the blog from formated output"""
