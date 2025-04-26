@@ -14,7 +14,7 @@ class BlogGenerator:
     """Generate engagement blog from scientific paper"""
     def __init__(self,
                  evaluator=gemini_2_flash, generator=gemini_2_flash,
-                 max_attempts=3, max_attempts_call=3,
+                 max_attempts=5, max_attempts_call=3,
                  experiment=False, use_memory=False, use_reflexion=False):
         """Initializes the BlogGenerator object with configuration for blog generation and evaluation."""
         self.__generator = generator.with_structured_output(BlogGeneration, include_raw=True)
@@ -85,6 +85,14 @@ class BlogGenerator:
             print("No similar article found.")
             return None
 
+    def sleep_if_need(self, current_time, limit_type):
+        """Sleep until the next minute if elapsed seconds from the start point is positive number"""
+        elapsed_seconds = (current_time - self.__start_time).total_seconds() if self.__start_time is not None else 0
+        sleep_time = 60 - elapsed_seconds if self.__start_time else 60
+        if elapsed_seconds > 0:
+            print(f"{limit_type} limit exceeded, sleeping for {round(sleep_time)} seconds.")
+            time.sleep(sleep_time)
+
     def check_limits(self):
         """
         Check if the request exceeds the daily, minute or token limits.
@@ -99,19 +107,11 @@ class BlogGenerator:
 
         # Check for RPM limit (Requests per minute)
         if self.__request_cnt >= GEMINI_2_FLASH_RPM:
-            # Sleep until the next minute
-            elapsed_seconds = (current_time - self.__start_time).total_seconds()
-            sleep_time = 60 - elapsed_seconds if self.__start_time else 60
-            print(f"RPM limit exceeded, sleeping for {round(sleep_time)} seconds.")
-            time.sleep(sleep_time)
+            self.sleep_if_need(current_time, "RPM")
 
         # Check for TPM limit (Tokens per minute)
         if self.__token_usage >= GEMINI_2_FLASH_TPM:
-            # Sleep until the next minute
-            elapsed_seconds = (current_time - self.__start_time).total_seconds()
-            sleep_time = 60 - elapsed_seconds if self.__start_time else 60
-            print(f"TPM limit exceeded, sleeping for {round(sleep_time)} seconds.")
-            time.sleep(sleep_time)
+            self.sleep_if_need(current_time, "TPM")
 
     def safe_invoke(self, chain, prompt_variables):
         """Invoke the model while respecting the RPD, RPM, and TPM limits."""
