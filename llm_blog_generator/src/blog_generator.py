@@ -47,6 +47,7 @@ class BlogGenerator:
         print("BlogGenerator initialized with vector store.")
 
     def set_usage_of_memory(self, bool_value):
+        """Setter for configuration parameter self.__use_memory"""
         self.__generator_retry_prompt = (prompt_retry_with_memory_usage if bool_value else prompt_retry)
         self.__use_memory = bool_value
         if bool_value and not self.__use_reflexion:
@@ -55,6 +56,7 @@ class BlogGenerator:
                   f"because long-term memory module can not be used without reflexion mechanism.")
 
     def set_usage_of_reflexion(self, bool_value):
+        """Setter for configuration parameter self.__use_reflexion"""
         self.__use_reflexion = bool_value
         if not bool_value and self.__use_memory:
             self.__use_memory = False
@@ -141,6 +143,7 @@ class BlogGenerator:
         return response
 
     def handle_call_limit(self, entity, attempt, e):
+        """Rate limit checker"""
         if attempt + 1 == self.__max_attempts_call:
             print(f"{e}\nError: Failed to get valid response from {entity} after the maximum number of attempts.")
             return None, None
