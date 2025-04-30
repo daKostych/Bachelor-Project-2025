@@ -13,3 +13,54 @@ The student will:
 - Design and implement a system that will use LLMs to automatically turn a given scientific paper into a blog post that follows the recommendations and optimizes the engagement
 - Evaluate and discuss the strengths and weaknesses of the implemented system
 
+---
+
+## Running the Blog Generation Pipeline
+
+To generate a blog post from a scientific paper, follow these steps:
+
+### 1. Navigate to the project directory
+
+```bash
+cd llm_blog_generator
+```
+
+### 2. Install required dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Make the script executable
+
+```bash
+chmod +x generate_blog.sh
+```
+
+### 4. Add your Google API key
+
+Create a `.env` file in the project root (if it does not already exist) and add your key:
+
+```env
+GOOGLE_API_KEY=your_api_key_here
+```
+
+### 5. Run the blog generation script
+
+```bash
+./generate_blog.sh
+```
+
+---
+
+## Optional: Run the Data Preprocessing Notebook
+
+If you'd like to run the Jupyter notebook used for data preprocessing:
+
+### Set the correct ChromeDriver path
+
+In `src/config.py`, update the following line (make sure the appropriate ChromeDriver is installed and the path is valid.):
+
+```python
+CHROMEDRIVER_PATH = BASE_DIR / "path/to/your/chromedriver"
+```
