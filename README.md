@@ -59,7 +59,7 @@ If you'd like to run the Jupyter notebook used for data preprocessing:
 
 ### Set the correct ChromeDriver path
 
-In `src/config.py`, update the following line (make sure the appropriate ChromeDriver is installed and the path is valid.):
+In `src/config.py`, update the following line (make sure the appropriate ChromeDriver is installed and the path is valid):
 
 ```python
 CHROMEDRIVER_PATH = BASE_DIR / "path/to/your/chromedriver"
