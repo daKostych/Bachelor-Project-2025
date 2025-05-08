@@ -42,6 +42,7 @@ class BlogGenerator:
 
         self.__memory = LongTermMemory()
 
+        os.makedirs(RESULTS_PATH, exist_ok=True)
         self.__result_blog_path = f"{RESULTS_PATH}/blog"
 
         print("BlogGenerator initialized with vector store.")
