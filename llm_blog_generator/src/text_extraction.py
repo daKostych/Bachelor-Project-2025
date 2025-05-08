@@ -1,4 +1,5 @@
 import time
+import os
 
 import requests
 from selenium import webdriver
@@ -95,6 +96,9 @@ def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=Non
 def extract_paper_text(pdf_url):
     """Download PDF and extract text"""
     try:
+        # Creation temporary directory for downloaded paper if not exist
+        os.makedirs(TMP_PDF_PATH, exist_ok=True)
+
         response = requests.get(pdf_url)
 
         # Save PDF
