@@ -20,6 +20,7 @@ try:
         print("Successfully loaded Google API key from environment variables.")
     else:
         print("Google API key is not set in environment variables.")
+        sys.exit("Google API key is required. Set it in environment variables.")
 except Exception as e:
     print(f"Error loading environment variables: {e}")
     raise
