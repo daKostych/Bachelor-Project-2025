@@ -99,10 +99,10 @@ if __name__ == "__main__":
     print()
 
     paper_info = answer_from_choices("In what format is your scientific paper available?",
-                                     ["arxiv pdf URL", "full text"])
+                                     ["URL to PDF", "full text"])
     blog = None
-    if paper_info == "arxiv pdf URL":
-        paper_url = input("Enter the paper arxiv pdf URL: ").strip()
+    if paper_info == "URL to PDF":
+        paper_url = input("Enter the URL to PDF: ").strip()
         blog = generator.generate_blog(paper_url=paper_url)
     elif paper_info == "full text":
         paper_text = read_paper("Enter the absolute path to the file containing the paper text: ")
