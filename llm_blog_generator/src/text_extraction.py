@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 import fitz
 import pandas as pd
 
-from src.config import CHROMEDRIVER_PATH, TMP_PDF_PATH
+from src.config import CHROMEDRIVER_PATH, TMP_PDF_PATH, BASE_DIR
 #=======================================================================================================================
 def extract_blog_text(blog=None, source="Medium", url_blog=None, author_blog=None, publisher_blog=None):
     """Extracts only the blog text with titles and subtitles from Medium/Google DeepMind"""
@@ -97,7 +97,7 @@ def extract_paper_text(pdf_url):
     """Download PDF and extract text"""
     try:
         # Creation temporary directory for downloaded paper if not exist
-        os.makedirs(TMP_PDF_PATH, exist_ok=True)
+        os.makedirs(os.path.join(BASE_DIR, "temp_paper.pdf"), exist_ok=True)
 
         response = requests.get(pdf_url)
 
