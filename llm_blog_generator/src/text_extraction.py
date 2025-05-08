@@ -97,7 +97,7 @@ def extract_paper_text(pdf_url):
     """Download PDF and extract text"""
     try:
         # Creation temporary directory for downloaded paper if not exist
-        os.makedirs(os.path.join(BASE_DIR, "temp_paper.pdf"), exist_ok=True)
+        os.makedirs(os.path.join(BASE_DIR, "tmp"), exist_ok=True)
 
         response = requests.get(pdf_url)
 
