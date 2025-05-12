@@ -34,6 +34,7 @@ except Exception as e:
     raise
 
 from src.blog_generator import BlogGenerator
+from src.text_extraction import extract_paper_text
 
 def number_from_interval(query, number_interval):
     while True:
@@ -79,6 +80,20 @@ def read_paper(query):
             print(f"Failed to read file.\n{error}")
             raise
 
+def extract_paper(query):
+    counter = 0
+    while True:
+        url = input(query).strip()
+        text = extract_paper_text(url)
+        if text != 1:
+            return text
+        else:
+            if counter > 5:
+                sys.exit(
+                    "The maximum number of attempts to enter a valid URL has been exhausted. Stopping the program.")
+            print(f"Invalid URL. Please enter a valid URL.")
+            counter += 1
+
 if __name__ == "__main__":
     # Collecting parameters for blog generator
     interval = (1, 5)
@@ -100,13 +115,13 @@ if __name__ == "__main__":
 
     paper_info = answer_from_choices("In what format is your scientific paper available?",
                                      ["URL to PDF", "full text"])
-    blog = None
+    paper_text = None
     if paper_info == "URL to PDF":
-        paper_url = input("Enter the URL to PDF: ").strip()
-        blog = generator.generate_blog(paper_url=paper_url)
+        paper_text = extract_paper("Enter the URL to PDF: ")
     elif paper_info == "full text":
         paper_text = read_paper("Enter the absolute path to the file containing the paper text: ")
-        blog = generator.generate_blog(paper_text=paper_text)
+
+    blog = generator.generate_blog(paper_text=paper_text)
 
     if blog:
         print("Check out the blog!")

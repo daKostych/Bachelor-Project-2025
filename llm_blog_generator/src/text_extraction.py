@@ -112,5 +112,5 @@ def extract_paper_text(pdf_url):
         return text
     except Exception as e:
         print(f"Error: {e}")
-        raise
+        return 1
 #=======================================================================================================================
