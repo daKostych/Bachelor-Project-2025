@@ -64,3 +64,10 @@ In `src/config.py`, update the following line (make sure the appropriate ChromeD
 ```python
 CHROMEDRIVER_PATH = BASE_DIR / "path/to/your/chromedriver"
 ```
+
+### Download the raw dataset with NIPS papers
+
+You need to download the dataset from Kaggle. You can get it by visiting the following link:  
+[Download NIPS Papers Dataset (1987-2019)](https://www.kaggle.com/datasets/rowhitswami/nips-papers-1987-2019-updated/data?select=papers.csv)  
+The reason for downloading the dataset is that the size of the possible attachment for the project did not allow to include the entire dataset.
+After downloading, make sure to place the `papers.csv` file in the appropriate directory (`/llm_blog_generator/data/`) as specified in the notebook.
