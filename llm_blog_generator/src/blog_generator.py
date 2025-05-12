@@ -1,13 +1,14 @@
 import datetime
 import os.path
 from datetime import datetime
+import time
 
 from src.helpers import get_examples, load_or_create_vector_store
 from src.models_setup import gemini_2_flash, embedding_model
-from src.text_extraction import *
+from src.text_extraction import extract_paper_text
 from src.prompts import prompt_zero_cot, prompt_rag, prompt_retry, prompt_retry_with_memory_usage
-from src.config import *
-from src.output_formats import *
+from src.config import GEMINI_2_FLASH_RPD, GEMINI_2_FLASH_RPM, GEMINI_2_FLASH_TPM, RESULTS_PATH, CLASSIFICATION_MAP
+from src.output_formats import BlogGeneration, BlogClassificationCoT
 from src.long_term_memory import LongTermMemory
 #=======================================================================================================================
 class BlogGenerator:

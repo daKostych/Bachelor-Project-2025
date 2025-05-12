@@ -1,5 +1,3 @@
-import os
-
 from langchain_community.vectorstores import FAISS
 
 from src.text_extraction import *
