@@ -22,7 +22,7 @@ To generate a blog post from a scientific paper, follow these steps:
 ### 1. Navigate to the project directory
 
 ```bash
-cd llm_blog_generator
+cd llm_blog_generator/
 ```
 
 ### 2. Install required dependencies
@@ -62,12 +62,25 @@ If you'd like to run the Jupyter notebook used for data preprocessing:
 In `src/config.py`, update the following line (make sure the appropriate ChromeDriver is installed and the path is valid):
 
 ```python
-CHROMEDRIVER_PATH = BASE_DIR / "path/to/your/chromedriver"
+CHROMEDRIVER_PATH = "absolute/path/to/your/chromedriver"
 ```
 
 ### Download the raw dataset with NIPS papers
 
-You need to download the dataset from Kaggle. You can get it by visiting the following link (last access date: 12-05-2025):  
-[Download NIPS Papers Dataset (1987-2019)](https://www.kaggle.com/datasets/rowhitswami/nips-papers-1987-2019-update--d/data?select=papers.csv)  
-The reason for downloading the dataset is that the size of the possible attachment for the project did not allow to include the entire dataset.
-After downloading, make sure to place the `papers.csv` file in the appropriate directory (`/llm_blog_generator/data/`) as specified in the notebook.
+#### 1. Navigate to the script directory
+
+```bash
+cd llm_blog_generator/data/
+```
+
+#### 2. Make the script executable
+
+```bash
+chmod +x download_dataset.sh
+```
+
+#### 3. Run the script
+
+```bash
+./download_dataset.sh
+```
